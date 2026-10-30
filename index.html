@@ -370,7 +370,9 @@ function update(){
  enemies.forEach(e=>{
   if(!e.alive)return;
   e.x+=e.dir*1.1;
-  if(Math.abs(e.x-e.home)>55)e.dir*=-1;
+
+if(e.x>=e.max)e.dir=-1;
+if(e.x<=e.min)e.dir=1;;
   let hit=player.x<e.x+25&&player.x+player.w>e.x-25&&
           player.y<e.y+10&&player.y+player.h>e.y-30;
   if(hit){
