@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Veer Jungle Adventure</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10243b;color:white;font-family:Arial;text-align:center;touch-action:manipulation}
+header{padding:12px;background:#183653;color:#ffe36b;font-weight:bold}
+canvas{width:100%;max-width:960px;height:auto;display:block;margin:auto;background:#78d9ff;touch-action:none}
+#controls{display:flex;justify-content:space-between;align-items:center;padding:12px;max-width:600px;margin:auto}
+button{font-size:23px;font-weight:bold;border:0;border-radius:12px;padding:14px;background:#ffcf43;color:#17304c;touch-action:none}
+.move{background:#31577b;color:white;width:65px}
+#status{padding:8px;font-weight:bold}
+</style>
+</head>
+<body>
+<header>🌴 VEER: JUNGLE ADVENTURE</header>
+<div id="status">Coins: 0 | Lives: 3</div>
+<canvas id="game" width="800" height="450"></canvas>
+<div id="controls">
+<div>
+<button class="move" id="left">◀</button>
+<button class="move" id="right">▶</button>
+</div>
+<button id="jump">JUMP ⬆</button>
+</div>
+<script>
+const c=document.getElementById("game"),x=c.getContext("2d");
+const W=800,H=450,world=2800;
+let p,coins,enemies,score,lives,cam,keys={},active=true,won=false;
+const floors=[[0,390,470],[520,350,190],[760,390,280],[1100,340,220],[1380,390,250],[1680,340,200],[1940,390,250],[2250,350,220],[2530,390,300]];
+function reset(){
+p={x:35,y:300,w:30,h:42,vx:0,vy:0,ground:false,inv:0};
+score=0;lives=3;cam=0;won=false;active=true;
+coins=[];
+for(let i=0;i<30;i++)coins.push({x:100+i*88,y:300-(i%3)*35,got:false});
+enemies=[500,830,1190,1480,1760,2020,2320,2600].map(a=>({x:a,y:350,dir:1,alive:true,home:a}));
+}
+function button(id,k){
+let b=document.getElementById(id);
+b.addEventListener("pointerdown",e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)});
+function release(){keys[k]=false}
+b.addEventListener("pointerup",release);
+b.addEventListener("pointercancel",release);
+b.addEventListener("lostpointercapture",release);
+}
+button("left","L");button("right","R");button("jump","J");
+addEventListener("keydown",e=>{
+if(["ArrowLeft","ArrowRight","ArrowUp"," "].includes(e.key))e.preventDefault();
+if(e.key==="ArrowLeft")keys.L=true;
+if(e.key==="ArrowRight")keys.R=true;
+if(e.key==="ArrowUp"||e.key===" ")keys.J=true;
+});
+addEventListener("keyup",e=>{
+if(e.key==="ArrowLeft")keys.L=false;
+if(e.key==="ArrowRight")keys.R=false;
+if(e.key==="ArrowUp"||e.key===" ")keys.J=false;
+});
+function draw(){
+let sky=x.createLinearGradient(0,0,0,H);
+sky.addColorStop(0,"#5dc7ff");sky.addColorStop(1,"#e3faff");
+x.fillStyle=sky;x.fillRect(0,0,W,H);
+x.fillStyle="#ffdf68";x.beginPath();x.arc(690,65,32,0,7);x.fill();
+for(let i=0;i<9;i++){
+let a=((i*150-cam*.3)%(W+160)+W+160)%(W+160)-80;
+x.fillStyle="#48ad79";x.beginPath();x.ellipse(a,390,120,95,0,Math.PI,0);x.fill();
+}
+floors.forEach(f=>{
+x.fillStyle="#87502c";x.fillRect(f[0]-cam,f[1],f[2],H-f[1]);
+x.fillStyle="#39c75d";x.fillRect(f[0]-cam,f[1],f[2],12);
+});
+coins.forEach(q=>{
+if(q.got)return;
+x.fillStyle="#ffbf19";x.beginPath();x.ellipse(q.x-cam,q.y,9,13,0,0,7);x.fill();
+x.strokeStyle="#fff4a3";x.lineWidth=2;x.stroke();
+});
+enemies.forEach(e=>{
+if(!e.alive)return;
+x.fillStyle="#7e42bd";x.beginPath();x.arc(e.x-cam,e.y,17,0,7);x.fill();
+x.fillStyle="white";x.fillRect(e.x-cam-9,e.y-5,6,7);x.fillRect(e.x-cam+3,e.y-5,6,7);
+x.fillStyle="#222";x.fillRect(e.x-cam-7,e.y-3,3,4);x.fillRect(e.x-cam+5,e.y-3,3,4);
+});
+x.fillStyle="#fff";x.fillRect(2730-cam,270,5,120);
+x.fillStyle="#ffcc35";x.beginPath();x.moveTo(2735-cam,270);x.lineTo(2790-cam,290);x.lineTo(2735-cam,310);x.fill();
+if(p.inv%8<4){
+x.fillStyle="#1677e8";x.fillRect(p.x-cam,p.y+12,p.w,p.h-12);
+x.fillStyle="#ffb16b";x.fillRect(p.x-cam+4,p.y,p.w-8,23);
+x.fillStyle="#d83236";x.fillRect(p.x-cam+1,p.y-5,p.w-2,9);
+x.fillStyle="#17243b";x.fillRect(p.x-cam+19,p.y+7,4,5);
+}
+}
+function end(win){
+active=false;won=win;
+document.getElementById("status").textContent=win?"🏆 YOU WIN! Coins: "+score:"GAME OVER | Coins: "+score;
+}
+function update(){
+if(!active)return;
+let old=p.y;
+p.vx=keys.L?-4.2:keys.R?4.2:p.vx*.75;
+p.x=Math.max(0,Math.min(world-p.w,p.x+p.vx));
+if(keys.J&&p.ground){p.vy=-12;p.ground=false;}
+p.vy=Math.min(13,p.vy+.55);p.y+=p.vy;p.ground=false;
+floors.forEach(f=>{
+if(p.x+p.w>f[0]&&p.x<f[0]+f[2]&&old+p.h<=f[1]&&p.y+p.h>=f[1]&&p.vy>=0){
+p.y=f[1]-p.h;p.vy=0;p.ground=true;
+}
+});
+coins.forEach(q=>{
+if(!q.got&&Math.abs(p.x+p.w/2-q.x)<22&&Math.abs(p.y+p.h/2-q.y)<27){q.got=true;score++;}
+});
+enemies.forEach(e=>{
+if(!e.alive)return;
+e.x+=e.dir;
+if(Math.abs(e.x-e.home)>45)e.dir*=-1;
+if(p.x<e.x+16&&p.x+p.w>e.x-16&&p.y<e.y+17&&p.y+p.h>e.y-17){
+if(p.vy>1&&old+p.h<e.y+5){e.alive=false;p.vy=-8;score+=2;}
+else if(p.inv<=0){lives--;p.inv=80;p.vy=-6;if(lives<=0)end(false);}
+}
+});
+if(p.inv>0)p.inv--;
+if(p.y>H+50){lives--;p.x=Math.max(0,p.x-100);p.y=250;p.vy=0;p.inv=80;if(lives<=0)end(false);}
+cam=Math.max(0,Math.min(world-W,p.x-W*.3));
+if(p.x>2700)end(true);
+document.getElementById("status").textContent="🪙 Coins: "+score+" | ❤️ Lives: "+lives;
+}
+function loop(){update();draw();requestAnimationFrame(loop)}
+reset();loop();
+})();
+</script>
+</body>
+</html>
