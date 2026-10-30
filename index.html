@@ -84,24 +84,63 @@ function makeLevel(){
  worldWidth=3300+(level-1)*180;
  finishX=worldWidth-180;
  camera=0;
- player={x:65,y:300,w:48,h:76,vx:0,vy:0,ground:false,inv:0,face:1};
- platforms=[
- [0,455,650],[700,390,260],[1020,455,430],
- [1510,385,280],[1850,455,390],
- [2310,390,300],[2670,455,360],
- [3100,400,400]
- ];
+
+ player={
+  x:65,y:300,w:48,h:76,
+  vx:0,vy:0,ground:false,inv:0,face:1
+ };
+
+ platforms=[[0,455,650]];
+
+ let xPos=700;
+ let i=0;
+ const heights=[455,405,365,430];
+
+ while(xPos<finishX-300){
+  let heightIndex=(i+level-1)%heights.length;
+  let groundY=heights[heightIndex];
+  let width=250+((i+level)%3)*25;
+
+  platforms.push([xPos,groundY,width]);
+  xPos+=width+65+((i+level)%2)*20;
+  i++;
+ }
+
+ platforms.push([finishX-100,455,500]);
+
+ // Coins
  treasures=[];
- for(let i=0;i<42;i++){
-  let px=130+i*76;
-  treasures.push({x:px,y:345-(i%4)*24,got:false});
- }
+ platforms.forEach((p,index)=>{
+  for(let j=0;j<4;j++){
+   treasures.push({
+    x:p[0]+45+j*55,
+    y:p[1]-65-(j%2)*15,
+    got:false
+   });
+  }
+ });
+
+ // Monsters: place directly ON platforms
  enemies=[];
- for(let i=0;i<8+level;i++){
-  let ex=480+i*330;
-  enemies.push({x:ex,home:ex,y:422,dir:1,alive:true});
- }
+ platforms.forEach((p,index)=>{
+  if(index===0 || index%2!==0)return;
+
+  let minX=p[0]+35;
+  let maxX=p[0]+p[2]-35;
+  let home=minX+(maxX-minX)/2;
+
+  enemies.push({
+   x:home,
+   home:home,
+   min:minX,
+   max:maxX,
+   y:p[1]-13,
+   dir:1,
+   alive:true
+  });
+ });
 }
+
 
 function roundRect(c,x,y,w,h,r){
  c.beginPath();c.roundRect(x,y,w,h,r);c.fill();
