@@ -2,132 +2,438 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Veer Jungle Adventure</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#092c45">
+<title>VEER: Jungle Adventure</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#10243b;color:white;font-family:Arial;text-align:center;touch-action:manipulation}
-header{padding:12px;background:#183653;color:#ffe36b;font-weight:bold}
-canvas{width:100%;max-width:960px;height:auto;display:block;margin:auto;background:#78d9ff;touch-action:none}
-#controls{display:flex;justify-content:space-between;align-items:center;padding:12px;max-width:600px;margin:auto}
-button{font-size:23px;font-weight:bold;border:0;border-radius:12px;padding:14px;background:#ffcf43;color:#17304c;touch-action:none}
-.move{background:#31577b;color:white;width:65px}
-#status{padding:8px;font-weight:bold}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#09243a;font-family:Arial,sans-serif;touch-action:none;color:white}
+#app{width:100%;height:100%;display:flex;flex-direction:column}
+#top{height:58px;min-height:48px;background:#092c45;display:flex;align-items:center;justify-content:space-between;padding:5px 14px;gap:8px}
+.brand{font-size:clamp(16px,3vw,25px);font-weight:900;color:#ffdb50}
+.stat{font-size:clamp(13px,2.5vw,20px);font-weight:bold}
+#stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#102b43}
+canvas{display:block;width:100%;height:100%;object-fit:contain;max-width:1200px;max-height:675px;touch-action:none}
+#controls{height:105px;min-height:85px;display:flex;align-items:center;justify-content:space-between;padding:8px 5%;background:#09243a}
+.group{display:flex;gap:14px;align-items:center}
+.ctrl{width:clamp(65px,13vw,100px);height:clamp(65px,13vw,88px);border-radius:22px;border:4px solid #73c9ff;background:linear-gradient(#168dff,#0750c9);color:white;font-size:clamp(25px,5vw,42px);font-weight:900;box-shadow:0 5px 0 #063b83;touch-action:none}
+#jump{width:clamp(105px,22vw,155px);font-size:clamp(19px,4vw,27px);border-color:#ffe28a;background:linear-gradient(#ffdc4b,#ed9200);color:#173453;box-shadow:0 5px 0 #985400}
+.ctrl:active{transform:translateY(4px);box-shadow:none}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#061c2dcc;z-index:5;padding:15px}
+.panel{width:min(92%,440px);padding:22px;background:linear-gradient(145deg,#123f5c,#071d35);border:3px solid #ffc83e;border-radius:22px;text-align:center;box-shadow:0 12px 35px #0009}
+.panel h1{font-size:clamp(26px,6vw,42px);margin:5px 0;color:#ffda49}
+.panel p{font-size:16px;line-height:1.5}
+.action{padding:14px 28px;border:0;border-radius:14px;background:#ffca37;color:#102d49;font-weight:900;font-size:21px}
+#rotate{display:none;position:fixed;inset:0;z-index:10;background:#09243a;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:22px;font-weight:bold}
+@media (orientation:portrait){
+ #rotate{display:flex}
+}
+@media (max-height:420px){
+ #top{height:40px;min-height:40px}
+ #controls{height:72px;min-height:72px}
+ .ctrl{height:58px;width:65px;border-radius:15px}
+ #jump{width:105px}
+}
 </style>
 </head>
 <body>
-<header>🌴 VEER: JUNGLE ADVENTURE</header>
-<div id="status">Coins: 0 | Lives: 3</div>
-<canvas id="game" width="800" height="450"></canvas>
-<div id="controls">
-<div>
-<button class="move" id="left">◀</button>
-<button class="move" id="right">▶</button>
-</div>
-<button id="jump">JUMP ⬆</button>
+<div id="rotate">📱<br><br>Please rotate your phone to landscape mode to play VEER!</div>
+<div id="app">
+ <div id="top">
+  <div class="brand">🌴 VEER ADVENTURE</div>
+  <div class="stat" id="level">LEVEL 1 / 10</div>
+  <div class="stat" id="score">🪙 0 &nbsp; ❤️ 3</div>
+  <button onclick="pauseGame()" style="font-size:22px;border:0;border-radius:10px;background:#ffca37;padding:7px 12px">Ⅱ</button>
+ </div>
+ <div id="stage">
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="overlay">
+   <div class="panel">
+    <h1>🌴 VEER</h1>
+    <h2>JUNGLE ADVENTURE</h2>
+    <p>Run, jump, collect coins and defeat jungle monsters!</p>
+    <p>Complete 10 exciting levels!</p>
+    <button class="action" id="start">▶ PLAY NOW</button>
+   </div>
+  </div>
+ </div>
+ <div id="controls">
+  <div class="group">
+   <button class="ctrl" id="left">◀</button>
+   <button class="ctrl" id="right">▶</button>
+  </div>
+  <button class="ctrl" id="jump">⬆ JUMP</button>
+ </div>
 </div>
 <script>
-const c=document.getElementById("game"),x=c.getContext("2d");
-const W=800,H=450,world=2800;
-let p,coins,enemies,score,lives,cam,keys={},active=true,won=false;
-const floors=[[0,390,470],[520,350,190],[760,390,280],[1100,340,220],[1380,390,250],[1680,340,200],[1940,390,250],[2250,350,220],[2530,390,300]];
-function reset(){
-p={x:35,y:300,w:30,h:42,vx:0,vy:0,ground:false,inv:0};
-score=0;lives=3;cam=0;won=false;active=true;
-coins=[];
-for(let i=0;i<30;i++)coins.push({x:100+i*88,y:300-(i%3)*35,got:false});
-enemies=[500,830,1190,1480,1760,2020,2320,2600].map(a=>({x:a,y:350,dir:1,alive:true,home:a}));
+"use strict";
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const W=960,H=540;
+const overlay=document.getElementById("overlay");
+const scoreText=document.getElementById("score");
+const levelText=document.getElementById("level");
+
+let level=1,coins=0,lives=3,camera=0;
+let running=false,paused=false,gameOver=false;
+let keys={left:false,right:false,jump:false};
+let jumpLock=false,frame=0;
+let player,platforms,treasures,enemies,finishX,worldWidth;
+
+function makeLevel(){
+ worldWidth=3300+(level-1)*180;
+ finishX=worldWidth-180;
+ camera=0;
+ player={x:65,y:300,w:48,h:76,vx:0,vy:0,ground:false,inv:0,face:1};
+ platforms=[
+ [0,455,650],[700,390,260],[1020,455,430],
+ [1510,385,280],[1850,455,390],
+ [2310,390,300],[2670,455,360],
+ [3100,400,400]
+ ];
+ treasures=[];
+ for(let i=0;i<42;i++){
+  let px=130+i*76;
+  treasures.push({x:px,y:345-(i%4)*24,got:false});
+ }
+ enemies=[];
+ for(let i=0;i<8+level;i++){
+  let ex=480+i*330;
+  enemies.push({x:ex,home:ex,y:422,dir:1,alive:true});
+ }
 }
-function button(id,k){
-let b=document.getElementById(id);
-b.addEventListener("pointerdown",e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)});
-function release(){keys[k]=false}
-b.addEventListener("pointerup",release);
-b.addEventListener("pointercancel",release);
-b.addEventListener("lostpointercapture",release);
+
+function roundRect(c,x,y,w,h,r){
+ c.beginPath();c.roundRect(x,y,w,h,r);c.fill();
 }
-button("left","L");button("right","R");button("jump","J");
-addEventListener("keydown",e=>{
-if(["ArrowLeft","ArrowRight","ArrowUp"," "].includes(e.key))e.preventDefault();
-if(e.key==="ArrowLeft")keys.L=true;
-if(e.key==="ArrowRight")keys.R=true;
-if(e.key==="ArrowUp"||e.key===" ")keys.J=true;
-});
-addEventListener("keyup",e=>{
-if(e.key==="ArrowLeft")keys.L=false;
-if(e.key==="ArrowRight")keys.R=false;
-if(e.key==="ArrowUp"||e.key===" ")keys.J=false;
-});
+
+function drawBackground(){
+ let sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,"#39a9ed");
+ sky.addColorStop(.58,"#a8e7ef");
+ sky.addColorStop(1,"#e4f9d2");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+
+ // Sun
+ ctx.fillStyle="#ffe875";
+ ctx.beginPath();ctx.arc(805,85,48,0,Math.PI*2);ctx.fill();
+
+ // Clouds
+ for(let i=0;i<6;i++){
+  let x=((i*210-camera*.12)%(W+250)+W+250)%(W+250)-100;
+  ctx.fillStyle="#ffffffcc";
+  ctx.beginPath();
+  ctx.arc(x,105+i%2*45,25,0,7);
+  ctx.arc(x+27,94+i%2*45,32,0,7);
+  ctx.arc(x+59,108+i%2*45,23,0,7);
+  ctx.fill();
+ }
+
+ // Distant mountains
+ for(let i=0;i<8;i++){
+  let x=((i*190-camera*.22)%(W+300)+W+300)%(W+300)-150;
+  ctx.fillStyle=i%2?"#478e77":"#347c71";
+  ctx.beginPath();
+  ctx.moveTo(x,380);ctx.lineTo(x+105,175);ctx.lineTo(x+220,380);ctx.fill();
+  ctx.fillStyle="#e2f8eb";
+  ctx.beginPath();
+  ctx.moveTo(x+75,235);ctx.lineTo(x+105,175);ctx.lineTo(x+137,235);ctx.fill();
+ }
+
+ // Jungle trees
+ for(let i=0;i<12;i++){
+  let x=((i*145-camera*.48)%(W+180)+W+180)%(W+180)-90;
+  ctx.fillStyle="#684126";
+  ctx.fillRect(x,280,25,175);
+  ctx.fillStyle=i%2?"#137044":"#208b4c";
+  for(let j=0;j<5;j++){
+   ctx.beginPath();ctx.arc(x+10+(j%2)*25,280-j*23,43,0,7);ctx.fill();
+  }
+ }
+}
+
+function drawWorld(){
+ // Platforms
+ platforms.forEach(p=>{
+  let x=p[0]-camera;
+  if(x>W||x+p[2]<0)return;
+  ctx.fillStyle="#784522";
+  ctx.fillRect(x,p[1],p[2],H-p[1]);
+  ctx.fillStyle="#35a832";
+  ctx.fillRect(x,p[1],p[2],17);
+  ctx.fillStyle="#72d94b";
+  ctx.fillRect(x,p[1],p[2],5);
+  for(let a=25;a<p[2];a+=55){
+   ctx.fillStyle="#9b6840";
+   ctx.fillRect(x+a,p[1]+40,22,8);
+  }
+  // Grass leaves
+  ctx.fillStyle="#1b8b37";
+  for(let a=15;a<p[2];a+=45){
+   ctx.beginPath();ctx.ellipse(x+a,p[1]-5,9,13,-.4,0,7);ctx.fill();
+  }
+ });
+
+ // Waterfall
+ ctx.fillStyle="#5cd5f6";
+ ctx.fillRect(2140-camera,300,45,155);
+ ctx.fillStyle="#c6f8ff";
+ ctx.fillRect(2152-camera,300,8,155);
+
+ // Coins
+ treasures.forEach(t=>{
+  if(t.got)return;
+  let x=t.x-camera;
+  ctx.fillStyle="#ffb900";
+  ctx.beginPath();ctx.arc(x,t.y,17,0,7);ctx.fill();
+  ctx.strokeStyle="#fff18a";ctx.lineWidth=4;ctx.stroke();
+  ctx.fillStyle="#fff0a0";ctx.font="bold 19px Arial";
+  ctx.textAlign="center";ctx.fillText("V",x,t.y+7);
+ });
+
+ // Enemies
+ enemies.forEach(e=>{
+  if(!e.alive)return;
+  let x=e.x-camera;
+  ctx.fillStyle="#7724a5";
+  ctx.beginPath();ctx.arc(x,e.y-14,28,0,7);ctx.fill();
+  ctx.fillStyle="#d99aff";
+  for(let a=0;a<6;a++){
+   let ang=a*Math.PI/3;
+   ctx.beginPath();
+   ctx.arc(x+Math.cos(ang)*29,e.y-14+Math.sin(ang)*29,9,0,7);ctx.fill();
+  }
+  ctx.fillStyle="white";
+  ctx.beginPath();ctx.arc(x-10,e.y-20,8,0,7);ctx.arc(x+10,e.y-20,8,0,7);ctx.fill();
+  ctx.fillStyle="#17132b";
+  ctx.beginPath();ctx.arc(x-9,e.y-20,4,0,7);ctx.arc(x+11,e.y-20,4,0,7);ctx.fill();
+  ctx.fillStyle="#30103f";
+  ctx.fillRect(x-13,e.y+7,26,6);
+ });
+
+ // Treasure chest
+ let chestX=finishX-95-camera;
+ ctx.fillStyle="#a94d14";
+ roundRect(ctx,chestX,360,75,60,10);
+ ctx.fillStyle="#f4a52c";
+ ctx.fillRect(chestX,355,75,18);
+ ctx.fillStyle="#ffe16b";
+ ctx.fillRect(chestX+32,370,12,20);
+
+ // Finish flag
+ let fx=finishX-camera;
+ ctx.fillStyle="#70451e";ctx.fillRect(fx,260,10,195);
+ ctx.fillStyle="#ed3232";
+ ctx.beginPath();ctx.moveTo(fx+10,265);ctx.lineTo(fx+95,295);ctx.lineTo(fx+10,325);ctx.fill();
+}
+
+function drawHero(){
+ let x=player.x-camera,y=player.y;
+ ctx.save();
+ if(player.inv>0&&Math.floor(frame/5)%2===0){ctx.globalAlpha=.4;}
+ // legs
+ ctx.strokeStyle="#171c27";ctx.lineWidth=13;ctx.lineCap="round";
+ let walk=Math.sin(frame*.22)*7;
+ ctx.beginPath();ctx.moveTo(x+17,y+55);ctx.lineTo(x+13+walk,y+72);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x+32,y+55);ctx.lineTo(x+36-walk,y+72);ctx.stroke();
+ // shoes
+ ctx.fillStyle="#171b24";
+ roundRect(ctx,x+2+walk,y+66,23,10,5);
+ roundRect(ctx,x+27-walk,y+66,23,10,5);
+ // body black jacket
+ ctx.fillStyle="#171b25";
+ roundRect(ctx,x+5,y+24,39,39,10);
+ ctx.fillStyle="#333c4b";
+ ctx.fillRect(x+22,y+27,5,33);
+ // arms
+ ctx.strokeStyle="#171b25";ctx.lineWidth=11;
+ ctx.beginPath();ctx.moveTo(x+9,y+34);ctx.lineTo(x-1,y+49+walk*.3);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x+40,y+34);ctx.lineTo(x+49,y+48-walk*.3);ctx.stroke();
+ // face
+ ctx.fillStyle="#c98258";
+ roundRect(ctx,x+9,y+2,32,33,10);
+ // hair
+ ctx.fillStyle="#10131b";
+ ctx.beginPath();
+ ctx.moveTo(x+7,y+16);
+ ctx.lineTo(x+7,y+3);
+ ctx.quadraticCurveTo(x+11,y-13,x+29,y-9);
+ ctx.quadraticCurveTo(x+48,y-8,x+44,y+12);
+ ctx.lineTo(x+39,y+8);
+ ctx.lineTo(x+14,y+13);
+ ctx.fill();
+ // sunglasses
+ ctx.fillStyle="#111923";
+ roundRect(ctx,x+8,y+12,16,10,4);
+ roundRect(ctx,x+26,y+12,16,10,4);
+ ctx.fillRect(x+23,y+15,5,3);
+ ctx.fillStyle="#6ca5c0";
+ ctx.fillRect(x+11,y+14,10,2);
+ ctx.fillRect(x+29,y+14,10,2);
+ // smile
+ ctx.strokeStyle="#713b32";ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(x+20,y+28);ctx.lineTo(x+30,y+28);ctx.stroke();
+ // jacket badge
+ ctx.fillStyle="#ffcf3b";
+ ctx.beginPath();ctx.arc(x+26,y+43,5,0,7);ctx.fill();
+ ctx.fillStyle="#fff";
+ ctx.font="bold 7px Arial";ctx.textAlign="center";
+ ctx.fillText("V",x+26,y+46);
+ ctx.restore();
+}
+
 function draw(){
-let sky=x.createLinearGradient(0,0,0,H);
-sky.addColorStop(0,"#5dc7ff");sky.addColorStop(1,"#e3faff");
-x.fillStyle=sky;x.fillRect(0,0,W,H);
-x.fillStyle="#ffdf68";x.beginPath();x.arc(690,65,32,0,7);x.fill();
-for(let i=0;i<9;i++){
-let a=((i*150-cam*.3)%(W+160)+W+160)%(W+160)-80;
-x.fillStyle="#48ad79";x.beginPath();x.ellipse(a,390,120,95,0,Math.PI,0);x.fill();
+ drawBackground();
+ drawWorld();
+ drawHero();
+
+ // level progress
+ ctx.fillStyle="#092c45cc";
+ roundRect(ctx,360,14,240,28,12);
+ ctx.fillStyle="#ffda4b";
+ ctx.fillRect(365,19,230*(player.x/worldWidth),18);
+
+ ctx.fillStyle="white";
+ ctx.font="bold 17px Arial";
+ ctx.textAlign="left";
+ ctx.fillText("JUNGLE LEVEL "+level,20,35);
 }
-floors.forEach(f=>{
-x.fillStyle="#87502c";x.fillRect(f[0]-cam,f[1],f[2],H-f[1]);
-x.fillStyle="#39c75d";x.fillRect(f[0]-cam,f[1],f[2],12);
-});
-coins.forEach(q=>{
-if(q.got)return;
-x.fillStyle="#ffbf19";x.beginPath();x.ellipse(q.x-cam,q.y,9,13,0,0,7);x.fill();
-x.strokeStyle="#fff4a3";x.lineWidth=2;x.stroke();
-});
-enemies.forEach(e=>{
-if(!e.alive)return;
-x.fillStyle="#7e42bd";x.beginPath();x.arc(e.x-cam,e.y,17,0,7);x.fill();
-x.fillStyle="white";x.fillRect(e.x-cam-9,e.y-5,6,7);x.fillRect(e.x-cam+3,e.y-5,6,7);
-x.fillStyle="#222";x.fillRect(e.x-cam-7,e.y-3,3,4);x.fillRect(e.x-cam+5,e.y-3,3,4);
-});
-x.fillStyle="#fff";x.fillRect(2730-cam,270,5,120);
-x.fillStyle="#ffcc35";x.beginPath();x.moveTo(2735-cam,270);x.lineTo(2790-cam,290);x.lineTo(2735-cam,310);x.fill();
-if(p.inv%8<4){
-x.fillStyle="#1677e8";x.fillRect(p.x-cam,p.y+12,p.w,p.h-12);
-x.fillStyle="#ffb16b";x.fillRect(p.x-cam+4,p.y,p.w-8,23);
-x.fillStyle="#d83236";x.fillRect(p.x-cam+1,p.y-5,p.w-2,9);
-x.fillStyle="#17243b";x.fillRect(p.x-cam+19,p.y+7,4,5);
-}
-}
-function end(win){
-active=false;won=win;
-document.getElementById("status").textContent=win?"🏆 YOU WIN! Coins: "+score:"GAME OVER | Coins: "+score;
-}
+
 function update(){
-if(!active)return;
-let old=p.y;
-p.vx=keys.L?-4.2:keys.R?4.2:p.vx*.75;
-p.x=Math.max(0,Math.min(world-p.w,p.x+p.vx));
-if(keys.J&&p.ground){p.vy=-12;p.ground=false;}
-p.vy=Math.min(13,p.vy+.55);p.y+=p.vy;p.ground=false;
-floors.forEach(f=>{
-if(p.x+p.w>f[0]&&p.x<f[0]+f[2]&&old+p.h<=f[1]&&p.y+p.h>=f[1]&&p.vy>=0){
-p.y=f[1]-p.h;p.vy=0;p.ground=true;
+ if(!running||paused)return;
+ frame++;
+ let oldY=player.y;
+ player.vx=0;
+ if(keys.left){player.vx=-5.2;player.face=-1;}
+ if(keys.right){player.vx=5.2;player.face=1;}
+ player.x=Math.max(0,Math.min(worldWidth-player.w,player.x+player.vx));
+ if(keys.jump&&!jumpLock&&player.ground){
+  player.vy=-15;player.ground=false;jumpLock=true;
+ }
+ if(!keys.jump)jumpLock=false;
+ player.vy=Math.min(14,player.vy+.65);
+ player.y+=player.vy;
+ player.ground=false;
+
+ platforms.forEach(p=>{
+  if(player.x+player.w>p[0]&&player.x<p[0]+p[2]&&
+     oldY+player.h<=p[1]+5&&player.y+player.h>=p[1]&&player.vy>=0){
+   player.y=p[1]-player.h;player.vy=0;player.ground=true;
+  }
+ });
+
+ treasures.forEach(t=>{
+  if(!t.got&&Math.abs(player.x+24-t.x)<30&&Math.abs(player.y+35-t.y)<38){
+   t.got=true;coins++;
+  }
+ });
+
+ enemies.forEach(e=>{
+  if(!e.alive)return;
+  e.x+=e.dir*1.1;
+  if(Math.abs(e.x-e.home)>55)e.dir*=-1;
+  let hit=player.x<e.x+25&&player.x+player.w>e.x-25&&
+          player.y<e.y+10&&player.y+player.h>e.y-30;
+  if(hit){
+   if(player.vy>2&&oldY+player.h<e.y-5){
+    e.alive=false;player.vy=-10;coins+=3;
+   }else if(player.inv<=0){
+    lives--;player.inv=100;player.vy=-7;
+    if(lives<=0)finishGame(false);
+   }
+  }
+ });
+ if(player.inv>0)player.inv--;
+ if(player.y>H+100){
+  lives--;player.y=300;player.vy=0;player.x=Math.max(20,player.x-180);player.inv=100;
+  if(lives<=0)finishGame(false);
+ }
+ camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.34));
+ if(player.x>=finishX)nextLevel();
+ scoreText.textContent="🪙 "+coins+"  ❤️ "+lives;
 }
-});
-coins.forEach(q=>{
-if(!q.got&&Math.abs(p.x+p.w/2-q.x)<22&&Math.abs(p.y+p.h/2-q.y)<27){q.got=true;score++;}
-});
-enemies.forEach(e=>{
-if(!e.alive)return;
-e.x+=e.dir;
-if(Math.abs(e.x-e.home)>45)e.dir*=-1;
-if(p.x<e.x+16&&p.x+p.w>e.x-16&&p.y<e.y+17&&p.y+p.h>e.y-17){
-if(p.vy>1&&old+p.h<e.y+5){e.alive=false;p.vy=-8;score+=2;}
-else if(p.inv<=0){lives--;p.inv=80;p.vy=-6;if(lives<=0)end(false);}
+
+function nextLevel(){
+ if(level>=10){finishGame(true);return;}
+ level++;
+ makeLevel();
+ levelText.textContent="LEVEL "+level+" / 10";
+ showMessage("LEVEL "+level+" COMPLETE!","Next jungle awaits!",true);
 }
-});
-if(p.inv>0)p.inv--;
-if(p.y>H+50){lives--;p.x=Math.max(0,p.x-100);p.y=250;p.vy=0;p.inv=80;if(lives<=0)end(false);}
-cam=Math.max(0,Math.min(world-W,p.x-W*.3));
-if(p.x>2700)end(true);
-document.getElementById("status").textContent="🪙 Coins: "+score+" | ❤️ Lives: "+lives;
+
+function showMessage(title,message,canPlay){
+ paused=true;
+ overlay.style.display="flex";
+ overlay.innerHTML='<div class="panel"><h1>'+title+'</h1><p>'+message+'</p><button class="action" id="continue">CONTINUE ▶</button></div>';
+ document.getElementById("continue").onclick=()=>{
+  overlay.style.display="none";paused=false;
+ };
 }
-function loop(){update();draw();requestAnimationFrame(loop)}
-reset();loop();
-})();
+
+function finishGame(win){
+ running=false;gameOver=true;
+ overlay.style.display="flex";
+ overlay.innerHTML='<div class="panel"><h1>'+(win?'🏆 YOU ARE THE JUNGLE HERO!':'GAME OVER')+'</h1><p>Coins collected: '+coins+'</p><p>'+(win?'You completed all 10 levels!':'Try again and save the jungle!')+'</p><button class="action" id="again">PLAY AGAIN</button></div>';
+ document.getElementById("again").onclick=()=>{
+  level=1;coins=0;lives=3;makeLevel();
+  levelText.textContent="LEVEL 1 / 10";
+  scoreText.textContent="🪙 0  ❤️ 3";
+  gameOver=false;running=true;paused=false;
+  overlay.style.display="none";
+ };
+}
+
+function startGame(){
+ level=1;coins=0;lives=3;
+ makeLevel();
+ scoreText.textContent="🪙 0  ❤️ 3";
+ levelText.textContent="LEVEL 1 / 10";
+ running=true;paused=false;gameOver=false;
+ overlay.style.display="none";
+}
+
+function pauseGame(){
+ if(!running||gameOver)return;
+ paused=!paused;
+ if(paused)showMessage("GAME PAUSED","Take a break, hero!",true);
+ else overlay.style.display="none";
+}
+
+document.getElementById("start").onclick=startGame;
+
+function bindButton(id,key){
+ let b=document.getElementById(id);
+ b.addEventListener("pointerdown",e=>{
+  e.preventDefault();keys[key]=true;
+  if(b.setPointerCapture)b.setPointerCapture(e.pointerId);
+ });
+ const release=e=>{keys[key]=false;};
+ b.addEventListener("pointerup",release);
+ b.addEventListener("pointercancel",release);
+ b.addEventListener("lostpointercapture",release);
+}
+bindButton("left","left");
+bindButton("right","right");
+bindButton("jump","jump");
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=true;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=true;
+ if(e.key==="ArrowUp"||e.key===" ")keys.jump=true;
+});
+document.addEventListener("keyup",e=>{
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=false;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=false;
+ if(e.key==="ArrowUp"||e.key===" ")keys.jump=false;
+});
+
+function loop(){
+ update();
+ draw();
+ requestAnimationFrame(loop);
+}
+makeLevel();
+loop();
 </script>
 </body>
 </html>
