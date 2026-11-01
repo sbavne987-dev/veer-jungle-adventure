@@ -94,7 +94,7 @@ function makeLevel(){
 
  let xPos=700;
  let i=0;
- const heights=[455,405,365,430];
+ let heightIndex=(i+level-1)%heights.length;
 
  while(xPos<finishX-300){
   let heightIndex=(i+level-1)%heights.length;
