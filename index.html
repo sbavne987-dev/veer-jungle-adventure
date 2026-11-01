@@ -2,93 +2,123 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#071b2d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>VEER ADVENTURE</title>
 
 <style>
-*{box-sizing:border-box}
-html,body{
- margin:0;width:100%;height:100%;overflow:hidden;
- background:#061727;font-family:Arial,sans-serif;
- touch-action:none;user-select:none;
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:#071d31;
+ color:white;
+ font-family:Arial,sans-serif;
+ overflow:hidden;
+ touch-action:none;
 }
 #app{
- position:fixed;inset:0;
- display:flex;flex-direction:column;
- background:#071b2d;
- padding-top:env(safe-area-inset-top);
- padding-bottom:env(safe-area-inset-bottom);
+ width:100%;
+ height:100dvh;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:space-between;
 }
-#top{
- height:65px;min-height:55px;
- display:flex;align-items:center;justify-content:space-between;
- gap:8px;padding:5px 14px;
- background:#092b43;color:white;
+header{
+ width:100%;
+ min-height:58px;
+ background:#092c46;
+ display:flex;
+ justify-content:space-around;
+ align-items:center;
+ padding:5px 12px;
+ gap:8px;
 }
-.brand{font-size:clamp(16px,3vw,30px);font-weight:900;color:#ffd23f;white-space:nowrap}
-.stats{display:flex;align-items:center;gap:clamp(7px,2vw,24px);font-size:clamp(13px,2.5vw,24px);font-weight:900;white-space:nowrap}
+.logo{font-size:clamp(16px,2.5vw,27px);font-weight:bold;color:#ffd43b}
+.info{font-size:clamp(13px,2vw,21px);font-weight:bold;white-space:nowrap}
 #pause{
- width:52px;height:48px;border:0;border-radius:13px;
- background:#ffd23f;color:#142e43;font-size:27px;font-weight:bold;
+ background:#ffcf35;
+ color:#102b43;
+ border:0;
+ border-radius:12px;
+ padding:10px 17px;
+ font-size:22px;
+ font-weight:bold;
 }
-#stage{
- position:relative;flex:1;min-height:0;
- background:#102e46;overflow:hidden;
+#gameBox{
+ width:min(100vw, calc((100dvh - 135px)*1.7778));
+ aspect-ratio:16/9;
+ max-height:calc(100dvh - 135px);
+ position:relative;
 }
-canvas{display:block;width:100%;height:100%;touch-action:none}
+canvas{
+ width:100%;
+ height:100%;
+ display:block;
+ background:#70c9ef;
+ border-radius:3px;
+}
 #controls{
- height:clamp(105px,19vh,160px);min-height:100px;
- display:flex;align-items:center;justify-content:space-between;
- padding:8px clamp(14px,7vw,100px);
- gap:15px;background:#071d31;
+ width:100%;
+ min-height:105px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:8px 7%;
+ background:#071d31;
 }
-.group{display:flex;gap:clamp(12px,3vw,28px)}
+.group{display:flex;gap:12px}
 .ctrl{
- width:clamp(76px,14vw,125px);
- height:clamp(72px,15vh,120px);
- border:4px solid #7bd5ff;border-radius:23px;
- background:linear-gradient(145deg,#168cf4,#0754c6);
- color:white;font-size:clamp(32px,7vw,58px);
- font-weight:900;box-shadow:0 7px 0 #063c84;
+ width:clamp(58px,10vw,90px);
+ height:clamp(54px,9vw,78px);
+ border:3px solid #65c5ff;
+ border-radius:17px;
+ background:linear-gradient(#168cf5,#0752b9);
+ color:white;
+ font-size:clamp(24px,4vw,38px);
+ font-weight:bold;
+ box-shadow:0 5px #063c80;
  touch-action:none;
 }
 #jump{
- width:clamp(125px,23vw,205px);
- border-color:#ffe48b;
- background:linear-gradient(145deg,#ffe45c,#f6a900);
- color:#17334b;box-shadow:0 7px 0 #a96500;
- font-size:clamp(21px,4vw,36px);
+ width:clamp(105px,17vw,155px);
+ height:clamp(55px,9vw,76px);
+ border:3px solid #ffe18a;
+ border-radius:18px;
+ background:linear-gradient(#ffdf49,#ff9f08);
+ color:#17334a;
+ font-size:clamp(17px,3vw,25px);
+ font-weight:bold;
+ box-shadow:0 5px #a65c00;
 }
-.ctrl:active{transform:translateY(4px);box-shadow:0 3px 0 #063c84}
-#jump:active{box-shadow:0 3px 0 #a96500}
 #message{
- position:absolute;inset:0;display:none;
- align-items:center;justify-content:center;
- background:#031321cc;padding:15px;z-index:5;
+ position:absolute;
+ inset:0;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ background:#0009;
 }
 .panel{
- width:min(90%,440px);padding:25px 20px;
- text-align:center;color:white;
- background:linear-gradient(145deg,#124b68,#09243a);
- border:3px solid #ffd23f;border-radius:22px;
- box-shadow:0 14px 40px #0008;
+ background:#092c46;
+ border:2px solid #ffd43b;
+ border-radius:18px;
+ padding:22px;
+ text-align:center;
+ width:min(85%,350px);
 }
-.panel h1{margin:0 0 12px;color:#ffd23f;font-size:clamp(24px,6vw,38px)}
-.panel p{font-size:17px;line-height:1.5;margin:8px 0 20px}
-.action{
- border:0;border-radius:14px;padding:15px 28px;
- background:#ffd23f;color:#142e43;
- font-size:20px;font-weight:900;
+.panel h2{font-size:22px;margin-bottom:10px}
+.panel p{font-size:15px;margin-bottom:15px}
+.panel button{
+ padding:11px 25px;
+ background:#ffcf35;
+ border:0;border-radius:10px;
+ font-size:17px;font-weight:bold;
 }
-@media(orientation:portrait){
- #top{height:55px;min-height:50px;padding:4px 7px}
- .brand{font-size:14px}
- .stats{font-size:12px;gap:6px}
- #pause{width:42px;height:40px}
- #controls{height:17vh;min-height:95px;padding:6px 12px}
- .ctrl{width:68px;height:70px;border-radius:17px}
- #jump{width:112px;font-size:19px}
+@media(max-height:430px){
+ header{min-height:42px}
+ #gameBox{width:min(100vw,calc((100dvh - 92px)*1.7778));max-height:calc(100dvh - 92px)}
+ #controls{min-height:50px;padding:3px 7%}
+ .ctrl{height:42px}
+ #jump{height:42px}
 }
 </style>
 </head>
@@ -96,198 +126,344 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <body>
 <div id="app">
 
-<header id="top">
- <div class="brand">🌴 VEER ADVENTURE</div>
- <div class="stats">
-  <span id="level">LEVEL 1 / 10</span>
-  <span>🪙 <b id="coins">0</b></span>
-  <span>❤️ <b id="lives">3</b></span>
- </div>
+<header>
+ <div class="logo">🌴 VEER ADVENTURE</div>
+ <div class="info" id="level">LEVEL 1 / 10</div>
+ <div class="info" id="coins">🪙 0</div>
+ <div class="info" id="lives">❤️ 3</div>
  <button id="pause">Ⅱ</button>
 </header>
 
-<main id="stage">
+<div id="gameBox">
  <canvas id="game" width="960" height="540"></canvas>
  <div id="message">
   <div class="panel">
-   <h1 id="msgTitle">VEER ADVENTURE</h1>
-   <p id="msgText">Collect coins, defeat monsters and reach the golden gate!</p>
-   <button class="action" id="continue">START GAME</button>
+   <h2 id="msgTitle">LEVEL COMPLETE!</h2>
+   <p id="msgText">Next jungle awaits!</p>
+   <button id="continue">CONTINUE</button>
   </div>
  </div>
-</main>
+</div>
 
-<nav id="controls">
+<div id="controls">
  <div class="group">
   <button class="ctrl" id="left">◀</button>
   <button class="ctrl" id="right">▶</button>
  </div>
- <button class="ctrl" id="jump">⬆ JUMP</button>
-</nav>
+ <button id="jump">⬆ JUMP</button>
+</div>
+
 </div>
 
 <script>
-(()=>{
 "use strict";
 
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
-const $=id=>document.getElementById(id);
+const W=960,H=540;
 
-const W=960,H=540,MAX=10;
+let level=1,coins=0,lives=3;
+let running=false,paused=false,gameOver=false;
+let camera=0,frame=0;
+let platforms=[],enemies=[],treasures=[];
+let finishX=0,worldWidth=0;
 
-let level=1,coins=0,lives=3,camera=0;
-let player,platforms=[],treasures=[],enemies=[],goal=0;
-let running=false,paused=false,frame=0;
-let keys={left:false,right:false};
-let jumpQueued=false;
+const keys={left:false,right:false,jump:false};
 
 const maps=[
- [[0,440,520],[620,405,250],[970,440,300],[1340,390,280],[1710,430,330],[2110,380,300],[2490,430,360]],
- [[0,440,360],[450,395,250],[790,350,250],[1130,420,300],[1530,370,250],[1870,420,320],[2290,350,350]],
- [[0,430,300],[390,380,230],[700,330,230],[1020,390,260],[1380,340,260],[1740,410,250],[2090,350,300],[2480,420,300]],
- [[0,440,430],[540,370,220],[850,420,220],[1160,340,240],[1500,390,220],[1810,330,240],[2160,420,350]],
- [[0,430,300],[390,360,220],[700,410,220],[1010,350,220],[1320,300,220],[1630,390,240],[1970,340,240],[2320,420,380]],
- [[0,440,360],[460,390,190],[740,330,200],[1030,400,190],[1320,340,200],[1610,410,190],[1900,320,230],[2240,400,400]],
- [[0,430,250],[340,380,210],[640,330,210],[940,390,210],[1240,340,210],[1540,290,210],[1840,380,210],[2140,330,390]],
- [[0,440,420],[530,390,180],[800,340,180],[1070,400,180],[1340,330,180],[1610,380,180],[1880,310,180],[2150,420,400]],
- [[0,430,300],[390,370,190],[670,320,190],[950,380,190],[1230,310,190],[1510,370,190],[1790,300,190],[2070,390,190],[2350,420,360]],
- [[0,440,260],[350,390,180],[610,340,180],[870,400,180],[1130,330,180],[1390,380,180],[1650,310,180],[1910,370,180],[2170,300,180],[2430,420,400]]
-];
-
-const themes=[
- ["#36b9f3","#b9f2df","#347d70","#087448"],
- ["#4c9de8","#c4dcff","#536e9c","#155d76"],
- ["#ffb45c","#ffe8b2","#9b674c","#8b4930"],
- ["#5148a9","#d8c8ff","#55508e","#30245e"],
- ["#45c9ae","#d7ffe0","#388b70","#075c43"],
- ["#f18b65","#ffe0ad","#a65e48","#633b37"],
- ["#4188d8","#c4e5ff","#416b98","#174e69"],
- ["#9c79dc","#f2d7ff","#75528e","#45265e"],
- ["#e5a947","#fff0ba","#9b8050","#596b32"],
- ["#2d9fa4","#b5f5e9","#347a76","#064d4d"]
+ [[0,455,650],[760,400,300],[1120,450,350],[1570,390,320],[2040,440,350],[2510,380,350],[3020,455,450]],
+ [[0,455,650],[730,420,260],[1080,365,300],[1500,430,280],[1900,355,330],[2370,405,320],[2830,455,500]],
+ [[0,455,500],[650,400,300],[1050,455,250],[1450,350,350],[1900,405,300],[2350,330,350],[2800,455,500]],
+ [[0,455,700],[820,370,280],[1210,430,250],[1590,350,330],[2050,455,280],[2450,380,350],[2940,455,500]],
+ [[0,455,450],[600,380,300],[1000,320,280],[1400,420,300],[1840,350,330],[2300,400,300],[2760,455,550]],
+ [[0,455,600],[750,390,280],[1150,330,300],[1580,420,280],[2000,350,350],[2480,400,300],[2930,455,500]],
+ [[0,455,500],[650,350,280],[1050,420,300],[1500,320,300],[1950,390,350],[2450,340,300],[2900,455,500]],
+ [[0,455,700],[820,410,250],[1200,340,300],[1630,440,300],[2080,360,280],[2500,420,300],[2950,455,500]],
+ [[0,455,500],[650,390,300],[1100,330,280],[1510,410,300],[1950,320,350],[2430,390,300],[2890,455,550]],
+ [[0,455,600],[750,350,300],[1200,430,300],[1650,330,350],[2130,400,300],[2580,340,350],[3070,455,600]]
 ];
 
 function makeLevel(){
- camera=0;frame=0;
- platforms=maps[level-1].map(p=>({x:p[0],y:p[1],w:p[2]}));
- goal=platforms[platforms.length-1].x+
-      platforms[platforms.length-1].w-65;
+ camera=0;
+ frame=0;
+ platforms=maps[level-1].map(p=>[...p]);
+ worldWidth=platforms[platforms.length-1][0]+platforms[platforms.length-1][2];
+ finishX=worldWidth-120;
 
- player={
-  x:55,y:platforms[0].y-76,
-  w:48,h:76,vx:0,vy:0,
-  ground:true,inv:0,face:1
- };
+ const start=platforms[0];
+ player={x:80,y:start[1]-72,w:48,h:72,vx:0,vy:0,ground:true,inv:0,face:1};
 
  treasures=[];
  enemies=[];
 
  platforms.forEach((p,i)=>{
-  for(let n=0;n<Math.floor(p.w/105);n++){
+  if(i===0||i===platforms.length-1)return;
+
+  for(let j=0;j<2;j++){
    treasures.push({
-    x:p.x+65+n*85,
-    y:p.y-65-(n%2)*25,
+    x:p[0]+70+j*85,
+    y:p[1]-85,
     got:false
    });
   }
 
-  // Monster feet are placed exactly on the platform surface.
-  if(i>0 && i<platforms.length-1 && (i%2===0 || level%3===0)){
-   const size=44;
+  if(i%2===1){
+   const size=36;
    enemies.push({
-    x:p.x+p.w*.55,
-    y:p.y-size,
-    w:size,h:size,
-    min:p.x+12,
-    max:p.x+p.w-size-8,
-    dir:1,alive:true
+    x:p[0]+p[2]/2,
+    home:p[0]+p[2]/2,
+    min:p[0]+size,
+    max:p[0]+p[2]-size,
+    y:p[1]-size,
+    size,dir:1,alive:true
    });
   }
  });
+
+ updateUI();
 }
 
-function rounded(x,y,w,h,r,color){
- ctx.fillStyle=color;
+let player={};
+
+function updateUI(){
+ document.getElementById("level").textContent="LEVEL "+level+" / 10";
+ document.getElementById("coins").textContent="🪙 "+coins;
+ document.getElementById("lives").textContent="❤️ "+lives;
+}
+
+function roundRect(x,y,w,h,r){
  ctx.beginPath();
  ctx.roundRect(x,y,w,h,r);
  ctx.fill();
 }
 
-function drawBackground(){
- const t=themes[level-1];
- const sky=ctx.createLinearGradient(0,0,0,H);
- sky.addColorStop(0,t[0]);
- sky.addColorStop(.65,t[1]);
- sky.addColorStop(1,"#e9f1c9");
- ctx.fillStyle=sky;
+function background(){
+ let g=ctx.createLinearGradient(0,0,0,H);
+ const colors=[
+  ["#62c9f5","#d9f7c0"],
+  ["#faad55","#fff0b5"],
+  ["#6758ac","#f6b2c7"],
+  ["#42a9a0","#c7f2cd"],
+  ["#ef9872","#ffe2a0"],
+  ["#4285a9","#d5eff5"],
+  ["#9c8ac8","#f9d9e8"],
+  ["#f0a65d","#fff0ae"],
+  ["#428c91","#c8e8b9"],
+  ["#433f7e","#f2b6a0"]
+ ];
+ g.addColorStop(0,colors[level-1][0]);
+ g.addColorStop(1,colors[level-1][1]);
+ ctx.fillStyle=g;
  ctx.fillRect(0,0,W,H);
 
  // Sun
- ctx.fillStyle="#fff09a";
+ ctx.fillStyle="#fff3a0";
  ctx.beginPath();
- ctx.arc(810,90,48,0,Math.PI*2);
+ ctx.arc(810,85,48,0,Math.PI*2);
  ctx.fill();
-
- // Distant mountains
- for(let i=0;i<8;i++){
-  let x=((i*180-camera*.15)%(W+220)+W+220)%(W+220)-100;
-  ctx.fillStyle=i%2?t[2]:"#559d8b";
-  ctx.beginPath();
-  ctx.moveTo(x,310);
-  ctx.lineTo(x+110,145+(i%3)*30);
-  ctx.lineTo(x+230,310);
-  ctx.fill();
- }
 
  // Clouds
  for(let i=0;i<6;i++){
-  let x=((i*210-camera*.08)%(W+180)+W+180)%(W+180)-80;
-  ctx.fillStyle="#ffffffd9";
+  let x=((i*230-camera*.15)%1100+1100)%1100-50;
+  ctx.fillStyle="#ffffffcc";
   ctx.beginPath();
-  ctx.arc(x,105+(i%2)*40,27,0,7);
-  ctx.arc(x+28,94+(i%2)*40,34,0,7);
-  ctx.arc(x+61,108+(i%2)*40,25,0,7);
+  ctx.arc(x,115,28,0,7);
+  ctx.arc(x+30,100,35,0,7);
+  ctx.arc(x+65,117,27,0,7);
+  ctx.fill();
+ }
+
+ // Mountains
+ ctx.fillStyle="#398e83";
+ for(let i=0;i<7;i++){
+  let x=((i*220-camera*.3)%1200+1200)%1200-100;
+  ctx.beginPath();
+  ctx.moveTo(x,360);
+  ctx.lineTo(x+110,185);
+  ctx.lineTo(x+220,360);
   ctx.fill();
  }
 
  // Trees
- for(let i=0;i<13;i++){
-  let x=((i*115-camera*.38)%(W+140)+W+140)%(W+140)-70;
-  ctx.fillStyle="#70452a";
-  ctx.fillRect(x+25,245,24,210);
-  ctx.fillStyle=i%2?t[3]:"#087c48";
+ for(let i=0;i<12;i++){
+  let x=((i*150-camera*.48)%1250+1250)%1250-120;
+  ctx.fillStyle="#68452d";
+  ctx.fillRect(x+25,300,32,170);
+  ctx.fillStyle=i%2?"#13864e":"#087447";
   ctx.beginPath();
-  ctx.arc(x+36,235,53,0,7);
-  ctx.arc(x+8,260,37,0,7);
-  ctx.arc(x+65,265,39,0,7);
+  ctx.arc(x+40,275,63,0,7);
+  ctx.arc(x+4,285,43,0,7);
+  ctx.arc(x+77,285,43,0,7);
   ctx.fill();
  }
 }
 
 function drawPlatforms(){
  platforms.forEach(p=>{
-  let x=p.x-camera;
-  if(x+p.w<0||x>W)return;
+  let x=p[0]-camera;
+  if(x>W||x+p[2]<0)return;
 
-  ctx.fillStyle="#704323";
-  ctx.fillRect(x,p.y,p.w,H-p.y);
+  ctx.fillStyle="#754323";
+  ctx.fillRect(x,p[1],p[2],H-p[1]);
 
-  ctx.fillStyle="#a76b3e";
-  ctx.fillRect(x,p.y,p.w,12);
+  ctx.fillStyle="#258c42";
+  ctx.fillRect(x,p[1],p[2],9);
 
-  ctx.fillStyle="#39a94d";
-  ctx.fillRect(x,p.y-9,p.w,11);
+  ctx.fillStyle="#a66a3c";
+  for(let a=20;a<p[2]-10;a+=55){
+   ctx.fillRect(x+a,p[1]+27,24,7);
+  }
 
-  for(let k=18;k<p.w-10;k+=55){
-   ctx.fillStyle="#9b704a";
-   ctx.fillRect(x+k,p.y+28,24,7);
-   ctx.fillStyle="#138b43";
+  ctx.fillStyle="#3caa55";
+  for(let a=12;a<p[2];a+=48){
    ctx.beginPath();
-   ctx.ellipse(x+k+8,p.y-5,7,11,-.4,0,7);
+   ctx.ellipse(x+a,p[1]-3,8,7,0,0,7);
    ctx.fill();
   }
  });
+}
+
+function drawEnemy(e){
+ if(!e.alive)return;
+ let x=e.x-camera,y=e.y,s=e.size;
+
+ ctx.save();
+
+ // Shadow
+ ctx.fillStyle="#0003";
+ ctx.beginPath();
+ ctx.ellipse(x,y+s+2,s*.48,5,0,0,7);
+ ctx.fill();
+
+ // Body
+ ctx.fillStyle="#a94ee3";
+ ctx.beginPath();
+ ctx.ellipse(x,y+s*.55,s*.52,s*.48,0,0,7);
+ ctx.fill();
+
+ // Spikes
+ for(let i=0;i<7;i++){
+  let a=i*Math.PI*2/7;
+  ctx.fillStyle="#d58aff";
+  ctx.beginPath();
+  ctx.arc(x+Math.cos(a)*s*.48,y+s*.52+Math.sin(a)*s*.48,9,0,7);
+  ctx.fill();
+ }
+
+ // Eyes
+ ctx.fillStyle="white";
+ ctx.beginPath();
+ ctx.arc(x-8,y+12,7,0,7);
+ ctx.arc(x+8,y+12,7,0,7);
+ ctx.fill();
+ ctx.fillStyle="#241337";
+ ctx.beginPath();
+ ctx.arc(x-8,y+12,3,0,7);
+ ctx.arc(x+8,y+12,3,0,7);
+ ctx.fill();
+
+ ctx.strokeStyle="#32143f";
+ ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.moveTo(x-9,y+27);
+ ctx.lineTo(x+9,y+27);
+ ctx.stroke();
+
+ ctx.restore();
+}
+
+function drawHero(){
+ let x=player.x-camera,y=player.y;
+ if(player.inv>0 && Math.floor(frame/5)%2===0)return;
+
+ ctx.save();
+
+ // Shadow
+ ctx.fillStyle="#0004";
+ ctx.beginPath();
+ ctx.ellipse(x+24,y+72,25,7,0,0,7);
+ ctx.fill();
+
+ // Legs
+ ctx.strokeStyle="#151a27";
+ ctx.lineWidth=11;
+ ctx.lineCap="round";
+ let walk=player.ground?Math.sin(frame*.22)*5:0;
+ ctx.beginPath();
+ ctx.moveTo(x+17,y+48);
+ ctx.lineTo(x+15+walk,y+64);
+ ctx.lineTo(x+10+walk,y+68);
+ ctx.moveTo(x+31,y+48);
+ ctx.lineTo(x+33-walk,y+64);
+ ctx.lineTo(x+39-walk,y+68);
+ ctx.stroke();
+
+ // Shoes
+ ctx.fillStyle="#101827";
+ roundRect(x+3+walk,y+63,17,9,4);
+ roundRect(x+30-walk,y+63,17,9,4);
+
+ // Body jacket
+ ctx.fillStyle="#151d30";
+ roundRect(x+7,y+25,35,30,10);
+
+ // Jacket details
+ ctx.fillStyle="#344a69";
+ ctx.fillRect(x+23,y+29,3,24);
+ ctx.fillStyle="#ffda3a";
+ ctx.beginPath();
+ ctx.arc(x+24,y+39,4,0,7);
+ ctx.fill();
+
+ // Arms
+ ctx.strokeStyle="#171d30";
+ ctx.lineWidth=10;
+ ctx.beginPath();
+ ctx.moveTo(x+9,y+31);
+ ctx.lineTo(x+2,y+46+walk*.5);
+ ctx.moveTo(x+40,y+31);
+ ctx.lineTo(x+47,y+46-walk*.5);
+ ctx.stroke();
+
+ // Hands
+ ctx.fillStyle="#bd805c";
+ ctx.beginPath();
+ ctx.arc(x+2,y+47+walk*.5,5,0,7);
+ ctx.arc(x+47,y+47-walk*.5,5,0,7);
+ ctx.fill();
+
+ // Neck
+ ctx.fillStyle="#bd805c";
+ ctx.fillRect(x+18,y+19,13,10);
+
+ // Face
+ ctx.fillStyle="#d59a70";
+ roundRect(x+10,y+3,29,28,9);
+
+ // Hair
+ ctx.fillStyle="#101522";
+ ctx.beginPath();
+ ctx.arc(x+24,y+10,15,Math.PI,0);
+ ctx.fill();
+ ctx.fillRect(x+9,y+7,6,11);
+ ctx.fillRect(x+34,y+7,6,11);
+
+ // Sunglasses
+ ctx.fillStyle="#080d18";
+ roundRect(x+11,y+14,27,8,3);
+ ctx.fillStyle="#68d4ff";
+ ctx.fillRect(x+14,y+16,8,2);
+ ctx.fillRect(x+27,y+16,8,2);
+
+ // Face details
+ ctx.strokeStyle="#75412e";
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ ctx.moveTo(x+20,y+25);
+ ctx.lineTo(x+29,y+25);
+ ctx.stroke();
+
+ ctx.restore();
 }
 
 function drawCoins(){
@@ -296,168 +472,47 @@ function drawCoins(){
   let x=t.x-camera;
   if(x<-30||x>W+30)return;
 
-  ctx.fillStyle="#ffbd18";
+  ctx.fillStyle="#ffba08";
   ctx.beginPath();
-  ctx.arc(x,t.y,15,0,7);
+  ctx.arc(x,t.y,17,0,7);
   ctx.fill();
-  ctx.strokeStyle="#fff18a";
+
+  ctx.strokeStyle="#fff0a0";
   ctx.lineWidth=3;
   ctx.stroke();
 
-  ctx.fillStyle="#fff";
-  ctx.font="bold 15px Arial";
+  ctx.fillStyle="white";
+  ctx.font="bold 16px Arial";
   ctx.textAlign="center";
-  ctx.fillText("V",x,t.y+5);
+  ctx.fillText("V",x,t.y+6);
  });
 }
 
-function drawMonster(e){
- if(!e.alive)return;
- let x=e.x-camera,y=e.y;
-
- // Shadow at platform level
- ctx.fillStyle="#173d3680";
+function drawFinish(){
+ let x=finishX-camera;
+ ctx.fillStyle="#65452d";
+ ctx.fillRect(x,platforms[platforms.length-1][1]-100,8,100);
+ ctx.fillStyle="#ffda35";
  ctx.beginPath();
- ctx.ellipse(x+22,y+43,23,5,0,0,7);
+ ctx.moveTo(x+8,platforms[platforms.length-1][1]-100);
+ ctx.lineTo(x+80,platforms[platforms.length-1][1]-80);
+ ctx.lineTo(x+8,platforms[platforms.length-1][1]-60);
  ctx.fill();
-
- // Monster spikes
- ctx.fillStyle="#bd66df";
- for(let a=0;a<8;a++){
-  let ang=a*Math.PI/4;
-  ctx.beginPath();
-  ctx.arc(x+22+Math.cos(ang)*17,
-          y+21+Math.sin(ang)*17,10,0,7);
-  ctx.fill();
- }
-
- ctx.fillStyle="#8737b4";
- ctx.beginPath();
- ctx.arc(x+22,y+21,20,0,7);
- ctx.fill();
-
- // Eyes
- ctx.fillStyle="white";
- ctx.beginPath();
- ctx.arc(x+15,y+16,6,0,7);
- ctx.arc(x+29,y+16,6,0,7);
- ctx.fill();
-
- ctx.fillStyle="#172033";
- ctx.beginPath();
- ctx.arc(x+16,y+17,2.5,0,7);
- ctx.arc(x+30,y+17,2.5,0,7);
- ctx.fill();
-
- ctx.fillStyle="white";
- ctx.fillRect(x+14,y+33,16,4);
-}
-
-function drawHero(){
- const x=player.x-camera,y=player.y;
-
- ctx.save();
- ctx.translate(x+player.w/2,y);
- if(player.face<0)ctx.scale(-1,1);
- ctx.translate(-player.w/2,0);
-
- // Shadow
- ctx.fillStyle="#123d3680";
- ctx.beginPath();
- ctx.ellipse(24,76,24,6,0,0,7);
- ctx.fill();
-
- // Legs
- ctx.strokeStyle="#151c28";
- ctx.lineWidth=11;
- ctx.lineCap="round";
- ctx.beginPath();
- ctx.moveTo(17,52);ctx.lineTo(14,67);
- ctx.moveTo(32,52);ctx.lineTo(35,67);
- ctx.stroke();
-
- // Shoes
- rounded(4,64,19,10,4,"#111827");
- rounded(28,64,19,10,4,"#111827");
-
- // Body
- rounded(7,25,34,32,9,"#101827");
- rounded(19,28,10,26,4,"#29374a");
-
- // Arms
- ctx.strokeStyle="#101827";
- ctx.lineWidth=9;
- ctx.beginPath();
- ctx.moveTo(9,32);ctx.lineTo(2,48);
- ctx.moveTo(39,32);ctx.lineTo(46,48);
- ctx.stroke();
-
- // Neck and face
- rounded(17,18,14,12,4,"#b8754d");
- rounded(10,2,29,27,10,"#bd8058");
-
- // Hair
- ctx.fillStyle="#11131a";
- ctx.beginPath();
- ctx.moveTo(8,14);
- ctx.quadraticCurveTo(5,-4,22,0);
- ctx.quadraticCurveTo(43,-4,41,15);
- ctx.lineTo(34,9);
- ctx.lineTo(13,10);
- ctx.fill();
-
- // Sunglasses
- rounded(10,11,14,8,3,"#10151e");
- rounded(27,11,14,8,3,"#10151e");
- ctx.fillStyle="#77c8dc";
- ctx.fillRect(12,12,10,2);
- ctx.fillRect(29,12,10,2);
- ctx.fillStyle="#10151e";
- ctx.fillRect(23,13,5,2);
-
- // Jacket badge
- ctx.fillStyle="#ffd23f";
- ctx.beginPath();
- ctx.arc(24,39,4,0,7);
- ctx.fill();
-
- ctx.restore();
-}
-
-function drawGoal(){
- let x=goal-camera;
- if(x<-80||x>W+80)return;
-
- const p=platforms[platforms.length-1];
-
- ctx.fillStyle="#754b28";
- ctx.fillRect(x,p.y-110,13,110);
-
- ctx.fillStyle="#ffd43b";
- ctx.beginPath();
- ctx.moveTo(x+13,p.y-110);
- ctx.lineTo(x+85,p.y-90);
- ctx.lineTo(x+13,p.y-68);
- ctx.fill();
-
- rounded(x+36,p.y-43,35,43,5,"#f8c52e");
 }
 
 function draw(){
- drawBackground();
+ background();
  drawPlatforms();
  drawCoins();
- enemies.forEach(drawMonster);
- drawGoal();
-
- // Hero blinking after damage
- if(player.inv<=0 || Math.floor(frame/5)%2===0){
-  drawHero();
- }
+ enemies.forEach(drawEnemy);
+ drawFinish();
+ drawHero();
 
  // Progress bar
- rounded(365,18,230,14,7,"#17465b");
- rounded(365,18,230*Math.min(1,player.x/goal),8,4,"#ffd43b");
+ ctx.fillStyle="#174d69";
+ roundRect(365,15,230,14,8);
+ ctx.fillStyle="#ffda35";
+ roundRect(365,15,230*Math.min(1,player.x/finishX),14,8);
 
  ctx.fillStyle="white";
  ctx.font="bold 14px Arial";
@@ -465,65 +520,33 @@ function draw(){
  ctx.fillText("JUNGLE LEVEL "+level,20,30);
 }
 
-function hit(a,b){
- return a.x<b.x+b.w &&
-        a.x+a.w>b.x &&
-        a.y<b.y+b.h &&
-        a.y+a.h>b.y;
-}
-
-function loseLife(){
- if(player.inv>0)return;
-
- lives--;
- $("lives").textContent=lives;
-
- if(lives<=0){
-  showPanel("GAME OVER",
-   "You ran out of lives. Try again, hero!",
-   "RESTART",startGame);
- }
-}
-
 function update(){
- if(!running||paused)return;
+ if(!running||paused||gameOver)return;
 
  frame++;
+ let oldY=player.y;
 
- const oldY=player.y;
  player.vx=0;
+ if(keys.left){player.vx=-5;player.face=-1}
+ if(keys.right){player.vx=5;player.face=1}
 
- if(keys.left){
-  player.vx=-5;
-  player.face=-1;
- }
- if(keys.right){
-  player.vx=5;
-  player.face=1;
- }
+ player.x=Math.max(0,Math.min(worldWidth-player.w,player.x+player.vx));
 
- player.x=Math.max(0,Math.min(goal,player.x+player.vx));
-
- if(jumpQueued&&player.ground){
-  player.vy=-14;
+ if(keys.jump&&player.ground){
+  player.vy=-15;
   player.ground=false;
  }
- jumpQueued=false;
+ keys.jump=false;
 
- player.vy=Math.min(15,player.vy+.65);
+ player.vy=Math.min(14,player.vy+.65);
  player.y+=player.vy;
  player.ground=false;
 
- // Platform landing
  platforms.forEach(p=>{
-  if(
-   player.x+player.w>p.x &&
-   player.x<p.x+p.w &&
-   oldY+player.h<=p.y+8 &&
-   player.y+player.h>=p.y &&
-   player.vy>=0
-  ){
-   player.y=p.y-player.h;
+  if(player.x+player.w>p[0]&&player.x<p[0]+p[2]&&
+     oldY+player.h<=p[1]+10&&
+     player.y+player.h>=p[1]&&player.vy>=0){
+   player.y=p[1]-player.h;
    player.vy=0;
    player.ground=true;
   }
@@ -531,12 +554,11 @@ function update(){
 
  // Collect coins
  treasures.forEach(t=>{
-  if(!t.got &&
-   Math.abs(player.x+24-t.x)<27 &&
-   Math.abs(player.y+35-t.y)<37){
+  if(!t.got&&Math.abs(player.x+24-t.x)<28&&
+     Math.abs(player.y+35-t.y)<35){
    t.got=true;
    coins++;
-   $("coins").textContent=coins;
+   updateUI();
   }
  });
 
@@ -544,181 +566,131 @@ function update(){
  enemies.forEach(e=>{
   if(!e.alive)return;
 
-  e.x+=e.dir*(1.1+level*.08);
+  e.x+=e.dir*1.1;
+  if(e.x>e.max)e.dir=-1;
+  if(e.x<e.min)e.dir=1;
 
-  if(e.x<e.min){e.x=e.min;e.dir=1}
-  if(e.x>e.max){e.x=e.max;e.dir=-1}
+  // Monster always stays on platform
+  let p=platforms.find(p=>e.x>=p[0]&&e.x<=p[0]+p[2]);
+  if(p)e.y=p[1]-e.size;
 
-  if(hit(player,{
-   x:e.x+4,y:e.y+5,w:e.w-8,h:e.h-5
-  })){
-   if(player.vy>1 && oldY+player.h<e.y+18){
+  let hit=player.x+player.w-8>e.x-e.size*.45&&
+          player.x+8<e.x+e.size*.45&&
+          player.y+player.h-8>e.y&&
+          player.y+8<e.y+e.size;
+
+  if(hit&&player.inv<=0){
+   if(player.vy>2&&oldY+player.h<e.y+12){
     e.alive=false;
-    player.vy=-9;
-    coins+=3;
-    $("coins").textContent=coins;
-   }else if(player.inv<=0){
-    loseLife();
-    if(lives>0){
-     player.inv=100;
-     player.vy=-6;
-    }
+    player.vy=-8;
+    coins+=5;
+   }else{
+    lives--;
+    player.inv=100;
+    player.vy=-6;
+    if(lives<=0)finishGame(false);
    }
+   updateUI();
   }
  });
 
  if(player.inv>0)player.inv--;
 
- // Falling down
  if(player.y>H+100){
-  loseLife();
-
-  if(lives>0){
-   let nearest=platforms.reduce((a,b)=>
-    Math.abs(b.x-player.x)<Math.abs(a.x-player.x)?b:a
-   );
-   player.x=Math.max(10,nearest.x+20);
-   player.y=nearest.y-player.h;
-   player.vy=0;
-   player.inv=100;
-  }
+  lives--;
+  player.inv=100;
+  player.y=platforms[0][1]-player.h;
+  player.x=Math.max(30,player.x-150);
+  player.vy=0;
+  if(lives<=0)finishGame(false);
+  updateUI();
  }
 
- camera=Math.max(0,Math.min(
-  goal-W+150,player.x-300
- ));
+ camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.38));
 
- // Level completion
- if(player.x+player.w>=goal){
-  if(level>=MAX){
-   showPanel(
-    "🏆 JUNGLE HERO!",
-    "All 10 levels completed! Total coins: "+coins,
-    "PLAY AGAIN",startGame
-   );
-  }else{
-   showPanel(
-    "LEVEL "+level+" COMPLETE!",
-    "Congratulations! Your next jungle adventure is ready.",
-    "NEXT LEVEL",nextLevel
-   );
-  }
- }
-}
-
-function showPanel(title,message,button,action){
- running=false;
- paused=true;
-
- $("msgTitle").textContent=title;
- $("msgText").textContent=message;
- $("continue").textContent=button;
- $("message").style.display="flex";
- $("continue").onclick=action;
+ if(player.x>=finishX)nextLevel();
 }
 
 function nextLevel(){
+ if(level>=10){
+  finishGame(true);
+  return;
+ }
  level++;
- lives=Math.min(3,lives+1);
-
  makeLevel();
+ showMessage("LEVEL "+(level-1)+" COMPLETE!","Welcome to the next jungle!");
+}
 
- $("level").textContent=`LEVEL ${level} / ${MAX}`;
- $("lives").textContent=lives;
+function showMessage(title,message){
+ paused=true;
+ document.getElementById("msgTitle").textContent=title;
+ document.getElementById("msgText").textContent=message;
+ document.getElementById("continue").textContent="CONTINUE";
+ document.getElementById("message").style.display="flex";
+}
 
- $("message").style.display="none";
+function finishGame(win){
+ running=false;
+ gameOver=true;
+ paused=true;
+ document.getElementById("msgTitle").textContent=win?"🏆 YOU ARE THE JUNGLE HERO!":"GAME OVER";
+ document.getElementById("msgText").textContent="Coins collected: "+coins;
+ document.getElementById("continue").textContent="PLAY AGAIN";
+ document.getElementById("message").style.display="flex";
+}
+
+document.getElementById("continue").onclick=()=>{
+ document.getElementById("message").style.display="none";
+
+ if(gameOver){
+  level=1;
+  coins=0;
+  lives=3;
+  gameOver=false;
+  makeLevel();
+ }
  paused=false;
  running=true;
-}
+};
 
-function startGame(){
- level=1;
- coins=0;
- lives=3;
+document.getElementById("pause").onclick=()=>{
+ if(!running||gameOver)return;
+ paused=!paused;
+ if(paused)showMessage("GAME PAUSED","Take a break, hero!");
+ else document.getElementById("message").style.display="none";
+};
 
- $("coins").textContent=coins;
- $("lives").textContent=lives;
- $("level").textContent=`LEVEL 1 / ${MAX}`;
-
- makeLevel();
-
- paused=false;
- running=true;
- $("message").style.display="none";
-}
-
-function pauseGame(){
- if(!running)return;
-
- showPanel(
-  "GAME PAUSED",
-  "Take a break, hero!",
-  "RESUME",
-  ()=>{
-   $("message").style.display="none";
-   paused=false;
-   running=true;
-  }
- );
-}
-
-// Mobile controls
-function bind(id,key){
- const b=$(id);
-
- const down=e=>{
+function bindButton(id,key){
+ const b=document.getElementById(id);
+ b.addEventListener("pointerdown",e=>{
   e.preventDefault();
   keys[key]=true;
-  if(b.setPointerCapture){
-   try{b.setPointerCapture(e.pointerId)}catch(err){}
-  }
- };
-
- const up=e=>{
-  e.preventDefault();
-  keys[key]=false;
- };
-
- b.addEventListener("pointerdown",down);
- ["pointerup","pointercancel","lostpointercapture"]
- .forEach(ev=>b.addEventListener(ev,up));
+  b.setPointerCapture(e.pointerId);
+ });
+ const release=()=>keys[key]=false;
+ b.addEventListener("pointerup",release);
+ b.addEventListener("pointercancel",release);
+ b.addEventListener("lostpointercapture",release);
 }
 
-bind("left","left");
-bind("right","right");
+bindButton("left","left");
+bindButton("right","right");
 
-$("jump").addEventListener("pointerdown",e=>{
+document.getElementById("jump").addEventListener("pointerdown",e=>{
  e.preventDefault();
- jumpQueued=true;
+ keys.jump=true;
 });
 
-$("pause").onclick=pauseGame;
-
-// Keyboard support
 window.addEventListener("keydown",e=>{
- if(["ArrowLeft","a","A"].includes(e.key)){
-  keys.left=true;e.preventDefault();
- }
- if(["ArrowRight","d","D"].includes(e.key)){
-  keys.right=true;e.preventDefault();
- }
- if(["ArrowUp"," ","w","W"].includes(e.key)){
-  jumpQueued=true;e.preventDefault();
- }
- if(e.key==="Escape")pauseGame();
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=true;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=true;
+ if(e.key==="ArrowUp"||e.key===" "||e.key==="w")keys.jump=true;
 });
-
 window.addEventListener("keyup",e=>{
- if(["ArrowLeft","a","A"].includes(e.key))keys.left=false;
- if(["ArrowRight","d","D"].includes(e.key))keys.right=false;
+ if(e.key==="ArrowLeft"||e.key==="a")keys.left=false;
+ if(e.key==="ArrowRight"||e.key==="d")keys.right=false;
 });
 
-window.addEventListener("blur",()=>{
- keys.left=false;
- keys.right=false;
-});
-
-// Main game loop
 function loop(){
  update();
  draw();
@@ -726,18 +698,8 @@ function loop(){
 }
 
 makeLevel();
-$("level").textContent="LEVEL 1 / 10";
-
-showPanel(
- "🌴 VEER ADVENTURE",
- "Collect golden coins, jump on monsters and reach the golden gate. Every level has a different map!",
- "START GAME",
- startGame
-);
-
+running=true;
 loop();
-
-})();
 </script>
 </body>
 </html>
