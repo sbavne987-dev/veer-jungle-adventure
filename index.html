@@ -393,97 +393,62 @@ function drawEnemy(e){
 }
 
 function drawHero(){
- let x=player.x-camera,y=player.y;
- if(player.inv>0 && Math.floor(frame/5)%2===0)return;
 
- ctx.save();
+  if(!heroSheet.complete || !heroSheet.naturalWidth) return;
 
- // Shadow
- ctx.fillStyle="#0004";
- ctx.beginPath();
- ctx.ellipse(x+24,y+72,25,7,0,0,7);
- ctx.fill();
+  if(player.inv > 0 && Math.floor(frame/5)%2===0) return;
 
- // Legs
- ctx.strokeStyle="#151a27";
- ctx.lineWidth=11;
- ctx.lineCap="round";
- let walk=player.ground?Math.sin(frame*.22)*5:0;
- ctx.beginPath();
- ctx.moveTo(x+17,y+48);
- ctx.lineTo(x+15+walk,y+64);
- ctx.lineTo(x+10+walk,y+68);
- ctx.moveTo(x+31,y+48);
- ctx.lineTo(x+33-walk,y+64);
- ctx.lineTo(x+39-walk,y+68);
- ctx.stroke();
+  const moving = keys.left || keys.right;
+  const jumping = !player.ground;
 
- // Shoes
- ctx.fillStyle="#101827";
- roundRect(x+3+walk,y+63,17,9,4);
- roundRect(x+30-walk,y+63,17,9,4);
+  let sx, sy, sw, sh;
 
- // Body jacket
- ctx.fillStyle="#151d30";
- roundRect(x+7,y+25,35,30,10);
+  if(jumping){
+    // Jump pose
+    sx=944; sy=95; sw=398; sh=588;
+  }
+  else if(moving){
+    // Running pose
+    sx=438; sy=167; sw=433; sh=633;
+  }
+  else{
+    // Standing pose
+    sx=73; sy=145; sw=287; sh=663;
+  }
 
- // Jacket details
- ctx.fillStyle="#344a69";
- ctx.fillRect(x+23,y+29,3,24);
- ctx.fillStyle="#ffda3a";
- ctx.beginPath();
- ctx.arc(x+24,y+39,4,0,7);
- ctx.fill();
+  const heroHeight=150;
+  const heroWidth=heroHeight*(sw/sh);
 
- // Arms
- ctx.strokeStyle="#171d30";
- ctx.lineWidth=10;
- ctx.beginPath();
- ctx.moveTo(x+9,y+31);
- ctx.lineTo(x+2,y+46+walk*.5);
- ctx.moveTo(x+40,y+31);
- ctx.lineTo(x+47,y+46-walk*.5);
- ctx.stroke();
+  const centerX=player.x+player.w/2;
+  const feetY=player.y+player.h;
 
- // Hands
- ctx.fillStyle="#bd805c";
- ctx.beginPath();
- ctx.arc(x+2,y+47+walk*.5,5,0,7);
- ctx.arc(x+47,y+47-walk*.5,5,0,7);
- ctx.fill();
+  ctx.save();
 
- // Neck
- ctx.fillStyle="#bd805c";
- ctx.fillRect(x+18,y+19,13,10);
+  // Ground shadow
+  ctx.fillStyle="#0005";
+  ctx.beginPath();
+  ctx.ellipse(centerX-camera,feetY,25,6,0,0,Math.PI*2);
+  ctx.fill();
 
- // Face
- ctx.fillStyle="#d59a70";
- roundRect(x+10,y+3,29,28,9);
+  // Hero direction
+  ctx.translate(centerX-camera,feetY);
 
- // Hair
- ctx.fillStyle="#101522";
- ctx.beginPath();
- ctx.arc(x+24,y+10,15,Math.PI,0);
- ctx.fill();
- ctx.fillRect(x+9,y+7,6,11);
- ctx.fillRect(x+34,y+7,6,11);
+  if(player.face===-1){
+    ctx.scale(-1,1);
+  }
 
- // Sunglasses
- ctx.fillStyle="#080d18";
- roundRect(x+11,y+14,27,8,3);
- ctx.fillStyle="#68d4ff";
- ctx.fillRect(x+14,y+16,8,2);
- ctx.fillRect(x+27,y+16,8,2);
+  // Draw clear character
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
 
- // Face details
- ctx.strokeStyle="#75412e";
- ctx.lineWidth=2;
- ctx.beginPath();
- ctx.moveTo(x+20,y+25);
- ctx.lineTo(x+29,y+25);
- ctx.stroke();
+  ctx.drawImage(
+    heroSheet,
+    sx,sy,sw,sh,
+    -heroWidth/2,-heroHeight,
+    heroWidth,heroHeight
+  );
 
- ctx.restore();
+  ctx.restore();
 }
 
 function drawCoins(){
