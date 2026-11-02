@@ -120,6 +120,22 @@ canvas{
  .ctrl{height:42px}
  #jump{height:42px}
 }
+ /* Disable browser text selection */
+* {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+canvas, button {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
+}
 </style>
 </head>
 
