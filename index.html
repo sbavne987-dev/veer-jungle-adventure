@@ -241,7 +241,11 @@ function makeLevel(){
 
 let player={};
 
-function updateUI(){
+ // SOHAN HERO SPRITE
+const heroSheet = new Image();
+heroSheet.src = "assets/hero-vyro.png";
+
+ function updateUI(){
  document.getElementById("level").textContent="LEVEL "+level+" / 10";
  document.getElementById("coins").textContent="🪙 "+coins;
  document.getElementById("lives").textContent="❤️ "+lives;
