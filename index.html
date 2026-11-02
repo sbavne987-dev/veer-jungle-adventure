@@ -417,6 +417,7 @@ function drawHero(){
   }
 
   const heroHeight=150;
+  const walkBob = moving && player.ground ? Math.sin(frame * 0.35) * 5 : 0;
   const heroWidth=heroHeight*(sw/sh);
 
   const centerX=player.x+player.w/2;
@@ -444,7 +445,7 @@ function drawHero(){
   ctx.drawImage(
     heroSheet,
     sx,sy,sw,sh,
-    -heroWidth/2,-heroHeight,
+    -heroWidth/2,-heroHeight+walkBob,
     heroWidth,heroHeight
   );
 
