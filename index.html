@@ -244,7 +244,9 @@ let player={};
  // SOHAN HERO SPRITE
 const heroSheet = new Image();
 heroSheet.src = "assets/hero-vyro.png";
-
+// SOHAN RUNNING ANIMATION
+const heroRunSheet = new Image();
+heroRunSheet.src = "assets/hero-animation.png";
  function updateUI(){
  document.getElementById("level").textContent="LEVEL "+level+" / 10";
  document.getElementById("coins").textContent="🪙 "+coins;
@@ -401,27 +403,8 @@ function drawHero(){
   const moving = keys.left || keys.right;
   const jumping = !player.ground;
 
-  let sx, sy, sw, sh;
-
-  if(jumping){
-    // Jump pose
-    sx=944; sy=95; sw=398; sh=588;
-  }
-  else if(moving){
-    // Running pose
-    sx=438; sy=167; sw=433; sh=633;
-  }
-  else{
-    // Standing pose
-    sx=73; sy=145; sw=287; sh=663;
-  }
-
-  const heroHeight=150;
-  const walkBob = moving && player.ground ? Math.sin(frame * 0.35) * 5 : 0;
-  const heroWidth=heroHeight*(sw/sh);
-
-  const centerX=player.x+player.w/2;
-  const feetY=player.y+player.h;
+  const centerX = player.x + player.w/2;
+  const feetY = player.y + player.h;
 
   ctx.save();
 
@@ -431,23 +414,72 @@ function drawHero(){
   ctx.ellipse(centerX-camera,feetY,25,6,0,0,Math.PI*2);
   ctx.fill();
 
-  // Hero direction
-  ctx.translate(centerX-camera,feetY);
+  let sx,sy,sw,sh;
+  let drawWidth,drawHeight;
+  let walkBob = 0;
 
-  if(player.face===-1){
-    ctx.scale(-1,1);
+  if(moving && player.ground &&
+     heroRunSheet.complete && heroRunSheet.naturalWidth){
+
+    // 4 Running Frames
+    const runFrames = [
+      [86,121,86,99],
+      [206,122,77,98],
+      [312,122,82,98],
+      [422,123,81,97]
+    ];
+
+    const index = Math.floor(frame/7)%4;
+
+    [sx,sy,sw,sh] = runFrames[index];
+
+    drawWidth = 130;
+    drawHeight = 150;
+
+    ctx.translate(centerX-camera,feetY);
+
+    if(player.face===-1){
+      ctx.scale(-1,1);
+    }
+
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+
+    ctx.drawImage(
+      heroRunSheet,
+      sx,sy,sw,sh,
+      -drawWidth/2,-drawHeight,
+      drawWidth,drawHeight
+    );
+
+  }else{
+
+    // Old Standing and Jumping Poses
+    if(jumping){
+      sx=944; sy=95; sw=398; sh=588;
+    }else{
+      sx=73; sy=145; sw=287; sh=663;
+    }
+
+    drawHeight=150;
+    drawWidth=drawHeight*(sw/sh);
+
+    ctx.translate(centerX-camera,feetY);
+
+    if(player.face===-1){
+      ctx.scale(-1,1);
+    }
+
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+
+    ctx.drawImage(
+      heroSheet,
+      sx,sy,sw,sh,
+      -drawWidth/2,-drawHeight,
+      drawWidth,drawHeight
+    );
   }
-
-  // Draw clear character
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality="high";
-
-  ctx.drawImage(
-    heroSheet,
-    sx,sy,sw,sh,
-    -heroWidth/2,-heroHeight+walkBob,
-    heroWidth,heroHeight
-  );
 
   ctx.restore();
 }
