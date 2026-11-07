@@ -260,64 +260,408 @@ function roundRect(x,y,w,h,r){
 }
 
 function background(){
- let g=ctx.createLinearGradient(0,0,0,H);
- const colors=[
-  ["#62c9f5","#d9f7c0"],
-  ["#faad55","#fff0b5"],
-  ["#6758ac","#f6b2c7"],
-  ["#42a9a0","#c7f2cd"],
-  ["#ef9872","#ffe2a0"],
-  ["#4285a9","#d5eff5"],
-  ["#9c8ac8","#f9d9e8"],
-  ["#f0a65d","#fff0ae"],
-  ["#428c91","#c8e8b9"],
-  ["#433f7e","#f2b6a0"]
+
+ const world = Math.max(1,Math.min(10,level||1));
+
+ const scenes = [
+  ["#62c9f5","#d9f7c0"], // Jungle
+  ["#5bb8ed","#e5f4ff"], // Mountain
+  ["#17152f","#65518c"], // Cave
+  ["#f59b43","#ffe5a5"], // Desert
+  ["#6ca9d5","#eafaff"], // Ice
+  ["#8d3028","#f5a044"], // Volcano
+  ["#49b8c0","#c8f3d6"], // River
+  ["#11152e","#40345f"], // Night
+  ["#4b9de0","#c5eaff"], // Sky
+  ["#321d39","#c65b52"]  // Castle
  ];
- g.addColorStop(0,colors[level-1][0]);
- g.addColorStop(1,colors[level-1][1]);
+
+ const colors=scenes[world-1];
+
+ let g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,colors[0]);
+ g.addColorStop(1,colors[1]);
+
  ctx.fillStyle=g;
  ctx.fillRect(0,0,W,H);
 
- // Sun
- ctx.fillStyle="#fff3a0";
- ctx.beginPath();
- ctx.arc(810,85,48,0,Math.PI*2);
- ctx.fill();
+ function circle(x,y,r,color){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fill();
+ }
 
- // Clouds
- for(let i=0;i<6;i++){
-  let x=((i*230-camera*.15)%1100+1100)%1100-50;
+ function mountain(x,y,w,h,color){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x+w/2,y-h);
+  ctx.lineTo(x+w,y);
+  ctx.closePath();
+  ctx.fill();
+ }
+
+ function cloud(x,y,s=1){
   ctx.fillStyle="#ffffffcc";
   ctx.beginPath();
-  ctx.arc(x,115,28,0,7);
-  ctx.arc(x+30,100,35,0,7);
-  ctx.arc(x+65,117,27,0,7);
+  ctx.arc(x,y,22*s,0,7);
+  ctx.arc(x+27*s,y-13*s,29*s,0,7);
+  ctx.arc(x+58*s,y,23*s,0,7);
   ctx.fill();
  }
 
- // Mountains
- ctx.fillStyle="#398e83";
- for(let i=0;i<7;i++){
-  let x=((i*220-camera*.3)%1200+1200)%1200-100;
-  ctx.beginPath();
-  ctx.moveTo(x,360);
-  ctx.lineTo(x+110,185);
-  ctx.lineTo(x+220,360);
-  ctx.fill();
- }
-
- // Trees
- for(let i=0;i<12;i++){
-  let x=((i*150-camera*.48)%1250+1250)%1250-120;
+ function tree(x,y,color="#087447",size=1){
   ctx.fillStyle="#68452d";
-  ctx.fillRect(x+25,300,32,170);
-  ctx.fillStyle=i%2?"#13864e":"#087447";
-  ctx.beginPath();
-  ctx.arc(x+40,275,63,0,7);
-  ctx.arc(x+4,285,43,0,7);
-  ctx.arc(x+77,285,43,0,7);
-  ctx.fill();
+  ctx.fillRect(x-8*size,y,18*size,100*size);
+
+  circle(x,y-15*size,39*size,color);
+  circle(x-27*size,y-2*size,26*size,color);
+  circle(x+27*size,y-2*size,26*size,color);
  }
+
+ const parallax=(speed,step)=> 
+  ((-camera*speed)%step+step)%step;
+
+ // LEVEL 1: GREEN JUNGLE
+ if(world===1){
+
+  circle(810,85,45,"#fff3a0");
+
+  for(let i=0;i<6;i++){
+   let x=parallax(.15,1100)+i*220-100;
+   cloud(x,115,1);
+  }
+
+  for(let i=0;i<7;i++){
+   let x=parallax(.28,1200)+i*210-100;
+   mountain(x,370,210,160,"#398e83");
+  }
+
+  for(let i=0;i<10;i++){
+   let x=parallax(.48,1250)+i*150-100;
+   tree(x,335,i%2?"#13864e":"#087447",1.3);
+  }
+ }
+
+ // LEVEL 2: MOUNTAIN WORLD
+ else if(world===2){
+
+  circle(780,90,42,"#fff4bd");
+
+  for(let i=0;i<7;i++){
+   let x=parallax(.2,1250)+i*200-100;
+   mountain(x,390,230,220,"#7295ad");
+   mountain(x+55,235,120,65,"#ffffff");
+  }
+
+  for(let i=0;i<11;i++){
+   let x=parallax(.48,1300)+i*125-80;
+   ctx.fillStyle="#315d43";
+   ctx.fillRect(x-5,325,12,90);
+   mountain(x-35,345,75,110,"#276b46");
+   mountain(x-30,295,65,85,"#398a55");
+  }
+
+  for(let i=0;i<4;i++){
+   cloud(i*260+80,105,1);
+  }
+ }
+
+ // LEVEL 3: MYSTERY CAVE
+ else if(world===3){
+
+  for(let i=0;i<35;i++){
+   let x=(i*137+40)%W;
+   let y=(i*83+30)%280;
+   circle(x,y,2,i%2?"#a9edff":"#c99cff");
+  }
+
+  // Cave ceiling
+  ctx.fillStyle="#29213e";
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.lineTo(W,0);
+  ctx.lineTo(W,160);
+  for(let x=W;x>=0;x-=80){
+   ctx.lineTo(x,145+Math.sin(x*.04)*25);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // Crystal formations
+  for(let i=0;i<12;i++){
+   let x=parallax(.4,1100)+i*110-60;
+   ctx.fillStyle=i%2?"#8d6be0":"#52d4e5";
+   ctx.beginPath();
+   ctx.moveTo(x,380);
+   ctx.lineTo(x+22,260+(i%3)*20);
+   ctx.lineTo(x+45,380);
+   ctx.fill();
+
+   circle(x+22,300+(i%3)*20,5,"#ffffff");
+  }
+
+  // Rock shapes
+  for(let i=0;i<7;i++){
+   let x=parallax(.2,1100)+i*180;
+   mountain(x,460,180,130,"#383047");
+  }
+ }
+
+ // LEVEL 4: DESERT WORLD
+ else if(world===4){
+
+  circle(790,90,54,"#ffe89a");
+
+  // Sand dunes
+  for(let i=0;i<7;i++){
+   let x=parallax(.18,1200)+i*190-100;
+   ctx.fillStyle=i%2?"#e9b66c":"#d69b51";
+   ctx.beginPath();
+   ctx.ellipse(x+90,400,160,90,0,Math.PI,Math.PI*2);
+   ctx.fill();
+  }
+
+  // Pyramids
+  for(let i=0;i<5;i++){
+   let x=parallax(.3,1100)+i*250-80;
+   mountain(x,380,180,160,"#b87943");
+   ctx.strokeStyle="#e6bd78";
+   ctx.lineWidth=3;
+   ctx.beginPath();
+   ctx.moveTo(x+90,220);
+   ctx.lineTo(x+90,380);
+   ctx.stroke();
+  }
+
+  // Cactus
+  for(let i=0;i<9;i++){
+   let x=parallax(.5,1200)+i*150;
+   ctx.fillStyle="#37854b";
+   ctx.fillRect(x,330,20,90);
+   ctx.fillRect(x-22,355,22,12);
+   ctx.fillRect(x-22,340,12,27);
+   ctx.fillRect(x+15,370,22,12);
+   ctx.fillRect(x+25,350,12,32);
+  }
+ }
+
+ // LEVEL 5: ICE WORLD
+ else if(world===5){
+
+  circle(790,85,38,"#ffffff");
+
+  for(let i=0;i<8;i++){
+   let x=parallax(.2,1250)+i*190-100;
+   mountain(x,390,220,240,"#8bc6e8");
+   mountain(x+60,240,100,100,"#ffffff");
+  }
+
+  // Frozen pine trees
+  for(let i=0;i<12;i++){
+   let x=parallax(.5,1300)+i*115-70;
+
+   ctx.fillStyle="#ffffff";
+   ctx.fillRect(x-5,340,12,85);
+
+   mountain(x-35,355,75,95,"#2d8399");
+   mountain(x-30,315,65,75,"#51a7bb");
+   mountain(x-25,280,55,60,"#aee8f3");
+  }
+
+  for(let i=0;i<25;i++){
+   circle((i*83)%W,(i*67)%H,2,"#ffffff");
+  }
+ }
+
+ // LEVEL 6: VOLCANO WORLD
+ else if(world===6){
+
+  circle(790,90,52,"#ffbd4d");
+
+  for(let i=0;i<6;i++){
+   let x=parallax(.25,1200)+i*220-100;
+   mountain(x,400,250,230,"#552c35");
+
+   ctx.fillStyle="#ff6034";
+   ctx.beginPath();
+   ctx.moveTo(x+100,205);
+   ctx.lineTo(x+135,300);
+   ctx.lineTo(x+115,330);
+   ctx.lineTo(x+165,400);
+   ctx.lineTo(x+80,400);
+   ctx.closePath();
+   ctx.fill();
+  }
+
+  // Lava glow
+  ctx.fillStyle="#f04b27";
+  ctx.fillRect(0,H-85,W,85);
+
+  for(let i=0;i<14;i++){
+   circle((i*97-camera*.35)%W,420+(i%3)*25,9,"#ffb52e");
+  }
+
+  // Smoke
+  for(let i=0;i<9;i++){
+   let x=(i*135-camera*.2)%W;
+   circle(x,130+(i%3)*35,24,"#60434a");
+  }
+ }
+
+ // LEVEL 7: RIVER WORLD
+ else if(world===7){
+
+  circle(790,85,43,"#fff4ad");
+
+  for(let i=0;i<6;i++){
+   let x=parallax(.2,1200)+i*220-100;
+   mountain(x,365,220,150,"#4c9e86");
+  }
+
+  // Waterfall and river
+  ctx.fillStyle="#319fca";
+  ctx.fillRect(0,400,W,140);
+
+  for(let i=0;i<14;i++){
+   let x=(i*85-camera*.5)%W;
+   ctx.strokeStyle="#a8edfa";
+   ctx.lineWidth=3;
+   ctx.beginPath();
+   ctx.moveTo(x,435+(i%3)*20);
+   ctx.lineTo(x+40,435+(i%3)*20);
+   ctx.stroke();
+  }
+
+  // River trees
+  for(let i=0;i<9;i++){
+   let x=parallax(.5,1200)+i*155-60;
+   tree(x,320,i%2?"#27804c":"#126b50",.9);
+  }
+
+  // Waterfall
+  ctx.fillStyle="#a9eafa";
+  ctx.fillRect(720,280,65,150);
+  ctx.fillStyle="#ffffff88";
+  ctx.fillRect(735,280,12,150);
+ }
+
+ // LEVEL 8: NIGHT FOREST
+ else if(world===8){
+
+  circle(780,95,47,"#f4edc9");
+
+  for(let i=0;i<50;i++){
+   let x=(i*79)%W;
+   let y=(i*53)%270;
+   circle(x,y,2,i%2?"#ffffff":"#d3a9ff");
+  }
+
+  for(let i=0;i<8;i++){
+   let x=parallax(.25,1200)+i*200-100;
+   mountain(x,390,220,170,"#252c48");
+  }
+
+  // Purple glowing trees
+  for(let i=0;i<12;i++){
+   let x=parallax(.5,1300)+i*125-60;
+   tree(x,330,i%2?"#49356f":"#263d59",1.2);
+   circle(x,285,5,"#b98aff");
+  }
+
+  // Fireflies
+  for(let i=0;i<15;i++){
+   let x=(i*93+frame*.3)%W;
+   let y=150+(i*47)%230;
+   circle(x,y,3,"#eaff91");
+  }
+ }
+
+ // LEVEL 9: SKY WORLD
+ else if(world===9){
+
+  circle(780,85,48,"#fff7bd");
+
+  // Floating clouds
+  for(let i=0;i<9;i++){
+   let x=((i*170-camera*.25)%1200+1200)%1200-100;
+   cloud(x,130+(i%3)*85,.9);
+  }
+
+  // Floating islands
+  for(let i=0;i<6;i++){
+   let x=parallax(.35,1200)+i*215-100;
+   ctx.fillStyle="#6b9d79";
+   ctx.beginPath();
+   ctx.moveTo(x,365);
+   ctx.lineTo(x+40,410);
+   ctx.lineTo(x+100,435);
+   ctx.lineTo(x+155,410);
+   ctx.lineTo(x+190,365);
+   ctx.fill();
+
+   ctx.fillStyle="#4dbb75";
+   ctx.fillRect(x,350,190,12);
+  }
+
+  for(let i=0;i<20;i++){
+   let x=(i*77)%W;
+   let y=300+(i*31)%150;
+   circle(x,y,4,"#ffffff");
+  }
+ }
+
+ // LEVEL 10: FINAL CASTLE
+ else if(world===10){
+
+  circle(790,95,48,"#ffb56b");
+
+  // Distant dark mountains
+  for(let i=0;i<7;i++){
+   let x=parallax(.2,1200)+i*200-100;
+   mountain(x,420,230,210,"#3c304a");
+  }
+
+  // Giant castle
+  ctx.fillStyle="#493344";
+  ctx.fillRect(340,210,330,240);
+
+  ctx.fillRect(300,170,75,280);
+  ctx.fillRect(630,170,75,280);
+
+  // Towers
+  ctx.fillStyle="#bd6254";
+  for(let i=0;i<3;i++){
+   let x=300+i*165;
+   ctx.fillRect(x,150,65,35);
+   ctx.beginPath();
+   ctx.moveTo(x-10,150);
+   ctx.lineTo(x+32,90);
+   ctx.lineTo(x+75,150);
+   ctx.fill();
+  }
+
+  // Castle windows
+  ctx.fillStyle="#ffbd62";
+  for(let i=0;i<5;i++){
+   ctx.fillRect(375+i*55,260,22,45);
+  }
+
+  // Main gate
+  ctx.fillStyle="#241c2a";
+  ctx.beginPath();
+  ctx.arc(505,450,55,Math.PI,0);
+  ctx.fill();
+  ctx.fillRect(450,395,110,55);
+
+  // Dark clouds
+  for(let i=0;i<6;i++){
+   let x=(i*190-camera*.15)%W;
+   cloud(x,110,1.1);
+  }
+ }
+
 }
 
 function drawPlatforms(){
