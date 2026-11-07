@@ -321,28 +321,103 @@ function background(){
 }
 
 function drawPlatforms(){
- platforms.forEach(p=>{
+
+ const worldStyles = [
+  ["#754323","#258c42","#a66a3c","#43bd52"],
+  ["#80502c","#368b42","#ad7542","#62c94d"],
+  ["#554044","#277b50","#805c63","#40b982"],
+  ["#b87936","#a4a044","#d49b52","#d9c75b"],
+  ["#567b9d","#d8edf5","#7199b5","#ffffff"],
+  ["#713b32","#b83d27","#94452e","#ef6937"],
+  ["#78502f","#268d62","#a77b45","#48c78a"],
+  ["#493b62","#246b55","#66517b","#58a66d"],
+  ["#526b9b","#478bbd","#829ac4","#8ed5ff"],
+  ["#55404a","#a23e35","#79505a","#d85a49"]
+ ];
+
+ const style = worldStyles[(level-1)%10];
+
+ const dirt = style[0];
+ const grass = style[1];
+ const tile = style[2];
+ const lightGrass = style[3];
+
+ platforms.forEach((p,index)=>{
+
   let x=p[0]-camera;
-  if(x>W||x+p[2]<0)return;
+  let y=p[1];
+  let width=p[2];
+  let height=H-y;
 
-  ctx.fillStyle="#754323";
-  ctx.fillRect(x,p[1],p[2],H-p[1]);
+  if(x>W || x+width<0) return;
 
-  ctx.fillStyle="#258c42";
-  ctx.fillRect(x,p[1],p[2],9);
+  // Main soil
+  ctx.fillStyle=dirt;
+  ctx.fillRect(x,y,width,height);
 
-  ctx.fillStyle="#a66a3c";
-  for(let a=20;a<p[2]-10;a+=55){
-   ctx.fillRect(x+a,p[1]+27,24,7);
+  // Checkerboard soil pattern
+  const tileSize=38;
+
+  for(let row=0;row<Math.ceil(height/tileSize);row++){
+   for(let col=0;col<Math.ceil(width/tileSize);col++){
+
+    let tx=x+col*tileSize;
+    let ty=y+12+row*tileSize;
+
+    if((row+col)%2===0){
+     ctx.fillStyle=tile;
+    }else{
+     ctx.fillStyle=dirt;
+    }
+
+    ctx.fillRect(
+     tx,
+     ty,
+     Math.min(tileSize,width-col*tileSize),
+     Math.min(tileSize,height-(ty-y))
+    );
+
+    ctx.strokeStyle="#00000018";
+    ctx.lineWidth=1;
+    ctx.strokeRect(tx,ty,tileSize,tileSize);
+   }
   }
 
-  ctx.fillStyle="#3caa55";
-  for(let a=12;a<p[2];a+=48){
+  // Grass top layer
+  ctx.fillStyle=grass;
+  ctx.fillRect(x,y,width,13);
+
+  // Bright grass highlight
+  ctx.fillStyle=lightGrass;
+  ctx.fillRect(x,y,width,4);
+
+  // Rounded grass edges
+  for(let a=0;a<width;a+=20){
    ctx.beginPath();
-   ctx.ellipse(x+a,p[1]-3,8,7,0,0,7);
+   ctx.ellipse(
+    x+a+10,
+    y+10,
+    11,
+    6,
+    0,0,Math.PI*2
+   );
+   ctx.fillStyle=grass;
    ctx.fill();
   }
+
+  // Small grass decorations
+  ctx.fillStyle=lightGrass;
+
+  for(let a=18;a<width;a+=75){
+   ctx.beginPath();
+   ctx.moveTo(x+a,y+3);
+   ctx.lineTo(x+a+5,y-5);
+   ctx.lineTo(x+a+9,y+3);
+   ctx.fill();
+  }
+
  });
+
 }
 
 function drawEnemy(e){
