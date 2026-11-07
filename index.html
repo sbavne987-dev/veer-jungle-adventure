@@ -973,11 +973,34 @@ function update(){
  frame++;
  let oldY=player.y;
 
- player.vx=0;
- if(keys.left){player.vx=-5;player.face=-1}
- if(keys.right){player.vx=5;player.face=1}
+ // SMOOTH WALK TO RUN ACCELERATION
+let targetSpeed = 0;
 
- player.x=Math.max(0,Math.min(worldWidth-player.w,player.x+player.vx));
+if(keys.left){
+  targetSpeed = -5;
+  player.face = -1;
+}
+
+if(keys.right){
+  targetSpeed = 5;
+  player.face = 1;
+}
+
+// Speed gradually increases
+const acceleration = targetSpeed === 0 ? 0.28 : 0.12;
+
+if(player.vx < targetSpeed){
+  player.vx = Math.min(targetSpeed, player.vx + acceleration);
+}
+else if(player.vx > targetSpeed){
+  player.vx = Math.max(targetSpeed, player.vx - acceleration);
+}
+
+// Smooth movement
+player.x = Math.max(
+  0,
+  Math.min(worldWidth-player.w, player.x+player.vx)
+);
 
  if(keys.jump&&player.ground){
   player.vy=-15;
