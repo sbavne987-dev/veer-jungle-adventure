@@ -835,12 +835,15 @@ function drawHero(){
 
   let sx,sy,sw,sh;
   let drawWidth,drawHeight;
-  let walkBob = 0;
 
-  if(moving && player.ground &&
-     heroRunSheet.complete && heroRunSheet.naturalWidth){
+  // RUNNING ANIMATION
+  if(
+    moving &&
+    player.ground &&
+    heroRunSheet.complete &&
+    heroRunSheet.naturalWidth
+  ){
 
-    // 4 Running Frames
     const runFrames = [
       [86,121,86,99],
       [206,122,77,98],
@@ -848,16 +851,17 @@ function drawHero(){
       [422,123,81,97]
     ];
 
-    const index = Math.floor(frame/7)%4;
+    // Smooth 4-frame running cycle
+    const index = Math.floor(frame/6)%runFrames.length;
 
     [sx,sy,sw,sh] = runFrames[index];
 
-    drawWidth = 130;
     drawHeight = 150;
+    drawWidth = drawHeight * (sw/sh);
 
     ctx.translate(centerX-camera,feetY);
 
-    if(player.face===-1){
+    if(player.face === -1){
       ctx.scale(-1,1);
     }
 
@@ -873,11 +877,17 @@ function drawHero(){
 
   }else{
 
-    // Old Standing and Jumping Poses
+    // STANDING AND JUMPING
     if(jumping){
-      sx=944; sy=95; sw=398; sh=588;
+      sx=944;
+      sy=95;
+      sw=398;
+      sh=588;
     }else{
-      sx=73; sy=145; sw=287; sh=663;
+      sx=73;
+      sy=145;
+      sw=287;
+      sh=663;
     }
 
     drawHeight=150;
@@ -885,7 +895,7 @@ function drawHero(){
 
     ctx.translate(centerX-camera,feetY);
 
-    if(player.face===-1){
+    if(player.face === -1){
       ctx.scale(-1,1);
     }
 
