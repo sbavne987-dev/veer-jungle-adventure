@@ -244,9 +244,13 @@ let player={};
  // SOHAN HERO SPRITE
 const heroSheet = new Image();
 heroSheet.src = "assets/hero-vyro.png";
-// SOHAN RUNNING ANIMATION
+// WALKING ANIMATION
+const heroWalkSheet = new Image();
+heroWalkSheet.src = "assets/hero-walk.png";
+
+// RUNNING ANIMATION
 const heroRunSheet = new Image();
-heroRunSheet.src = "assets/hero-animation.png";
+heroRunSheet.src = "assets/hero-run.png";
  function updateUI(){
  document.getElementById("level").textContent="LEVEL "+level+" / 10";
  document.getElementById("coins").textContent="🪙 "+coins;
@@ -819,8 +823,9 @@ function drawHero(){
 
   if(player.inv > 0 && Math.floor(frame/5)%2===0) return;
 
-  const moving = keys.left || keys.right;
+  const speed = Math.abs(player.vx);
   const jumping = !player.ground;
+  const moving = speed > 0.15;
 
   const centerX = player.x + player.w/2;
   const feetY = player.y + player.h;
@@ -835,83 +840,81 @@ function drawHero(){
 
   let sx,sy,sw,sh;
   let drawWidth,drawHeight;
+  let sheet = heroSheet;
 
-  // RUNNING ANIMATION
-  if(
-    moving &&
-    player.ground &&
-    heroRunSheet.complete &&
-    heroRunSheet.naturalWidth
-  ){
+  // WALKING OR RUNNING
+  if(!jumping && moving){
 
-    const runFrames = [
-      [86,121,86,99],
-      [206,122,77,98],
-      [312,122,82,98],
-      [422,123,81,97]
-    ];
+    let frames;
 
-    // Smooth 4-frame running cycle
-    const index = Math.floor(frame/6)%runFrames.length;
+    if(speed < 3.2 &&
+       heroWalkSheet.complete &&
+       heroWalkSheet.naturalWidth){
 
-    [sx,sy,sw,sh] = runFrames[index];
+      // SLOW WALKING: 4 frames
+      sheet = heroWalkSheet;
+      frames = 10;
 
-    drawHeight = 150;
-    drawWidth = drawHeight * (sw/sh);
+    }else if(heroRunSheet.complete &&
+             heroRunSheet.naturalWidth){
 
-    ctx.translate(centerX-camera,feetY);
+      // FAST RUNNING: 4 frames
+      sheet = heroRunSheet;
+      frames = 6;
 
-    if(player.face === -1){
-      ctx.scale(-1,1);
     }
 
-    ctx.imageSmoothingEnabled=true;
-    ctx.imageSmoothingQuality="high";
+    if(sheet !== heroSheet){
 
-    ctx.drawImage(
-      heroRunSheet,
-      sx,sy,sw,sh,
-      -drawWidth/2,-drawHeight,
-      drawWidth,drawHeight
-    );
+      const index = Math.floor(frame/frames)%4;
+
+      sx = index*220;
+      sy = 0;
+      sw = 220;
+      sh = 240;
+
+      drawHeight = 150;
+      drawWidth = drawHeight*(sw/sh);
+
+    }else{
+      // Fallback to old standing pose
+      sx=73; sy=145; sw=287; sh=663;
+      drawHeight=150;
+      drawWidth=drawHeight*(sw/sh);
+    }
 
   }else{
 
-    // STANDING AND JUMPING
+    // STANDING OR JUMPING
     if(jumping){
-      sx=944;
-      sy=95;
-      sw=398;
-      sh=588;
+      sx=944; sy=95; sw=398; sh=588;
     }else{
-      sx=73;
-      sy=145;
-      sw=287;
-      sh=663;
+      sx=73; sy=145; sw=287; sh=663;
     }
 
     drawHeight=150;
     drawWidth=drawHeight*(sw/sh);
-
-    ctx.translate(centerX-camera,feetY);
-
-    if(player.face === -1){
-      ctx.scale(-1,1);
-    }
-
-    ctx.imageSmoothingEnabled=true;
-    ctx.imageSmoothingQuality="high";
-
-    ctx.drawImage(
-      heroSheet,
-      sx,sy,sw,sh,
-      -drawWidth/2,-drawHeight,
-      drawWidth,drawHeight
-    );
   }
+
+  ctx.translate(centerX-camera,feetY);
+
+  if(player.face===-1){
+    ctx.scale(-1,1);
+  }
+
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+
+  ctx.drawImage(
+    sheet,
+    sx,sy,sw,sh,
+    -drawWidth/2,-drawHeight,
+    drawWidth,drawHeight
+  );
 
   ctx.restore();
 }
+
 
 function drawCoins(){
  treasures.forEach(t=>{
